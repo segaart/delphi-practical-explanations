@@ -269,7 +269,7 @@
  </head>
  <body class="h-full">
  
- <audio id="level-1-btn" src="audio/array1intro.mp3"></audio>
+<audio id="array1Audio" src="audio/array1animate.mp3"></audio>
  
   <div id="app-wrapper" class="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-auto">
    <div class="min-h-full p-6 md:p-8"><!-- Header -->
@@ -308,7 +308,7 @@
          </div>
         </div>
        </div><!-- Play Button -->
-       <div class="text-center mt-6"><button id="play-level-1" onclick="playLevel1()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30"> ▶ Play Animation </button> <button id="reset-level-1" onclick="resetLevel1()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       <div class="text-center mt-6"><button id="play-level-1" onclick="playAnimation()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30"> ▶ Play Animation </button> <button id="reset-level-1" onclick="resetLevel1()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
        </div>
       </div>
      </section><!-- Level 2: Assignment -->
@@ -2439,6 +2439,19 @@
 function playLevel1() {
     document.getElementById("level-1-btn").currentTime = 0;
     document.getElementById("level-1-btn").play();
+}
+</script>
+
+<script>
+function playAnimation() {
+
+    // Restart audio if clicked again
+    const audio = document.getElementById("array1Audio");
+    audio.currentTime = 0;
+    audio.play();
+
+    // 🔽 Keep your existing animation code here
+    // (If you already had animation code, move it inside this function)
 }
 </script>
  
