@@ -226,6 +226,38 @@
 </head>
 
 <body>
+
+<a href="index.html" class="back-btn">← Back to Arrays Menu</a>
+
+<style>
+.back-btn{
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  font-family: system-ui, sans-serif;
+
+  background: linear-gradient(135deg, #b5121b, #0a7a3d);
+  color: white;
+
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+
+  transition: transform .15s ease, box-shadow .15s ease;
+  z-index: 1000;
+}
+
+.back-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.45);
+}
+</style>
+
+
+  
   <div class="wrap">
 
     <div class="topbar">
@@ -311,5 +343,6 @@
   </div>
 </body>
 </html>
+
 
 
