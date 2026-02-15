@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Arrays Menu</title>
+
+  <style>
+    :root{
+      --pbhs-red:#b5121b;
+      --pbhs-green:#0a7a3d;
+      --pbhs-dark:#0f172a;
+      --pbhs-light:#ffffff;
+      --card:#111827;
+      --muted:#cbd5e1;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--pbhs-light);
+      background:
+        radial-gradient(900px 600px at 10% 10%, rgba(181,18,27,0.25), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(10,122,61,0.20), transparent 55%),
+        linear-gradient(135deg, #0b1223, #0f172a 55%, #0b1223);
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom: 22px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(6px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width: 0;
+    }
+
+    .logo{
+      width:56px;
+      height:56px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex-shrink:0;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .titleblock{
+      min-width:0;
+    }
+    .title{
+      margin:0;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      line-height:1.15;
+    }
+    .subtitle{
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .navlinks{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .navlinks a{
+      text-decoration:none;
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .navlinks a:hover{
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.09);
+    }
+
+    /* Hero */
+    .hero{
+      margin: 18px 0 18px;
+      padding: 20px 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(181,18,27,0.20), rgba(10,122,61,0.18));
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .hero h2{
+      margin:0 0 8px;
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+    .hero p{
+      margin:0;
+      color: rgba(255,255,255,0.85);
+      line-height:1.5;
+      max-width: 78ch;
+    }
+
+    /* Buttons grid */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 780px){
+      .grid{ grid-template-columns: 1fr; }
+      .navlinks{ justify-content:flex-start; }
+    }
+
+    .bigbtn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+
+      padding: 18px 18px;
+      border-radius: 18px;
+      text-decoration:none;
+
+      background: rgba(17, 24, 39, 0.70);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .bigbtn:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.45);
+      border-color: rgba(255,255,255,0.20);
+    }
+
+    /* accent bar on left */
+    .bigbtn::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 8px;
+      background: var(--pbhs-red);
+      opacity: 0.95;
+    }
+
+    .btntext{
+      padding-left: 8px; /* gives breathing room from accent bar */
+      min-width:0;
+    }
+    .btntext h3{
+      margin:0;
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+    .btntext p{
+      margin: 6px 0 0;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.35;
+      font-size: 0.98rem;
+    }
+
+    .chip{
+      flex-shrink:0;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      white-space: nowrap;
+    }
+
+    /* Different accent colors per button */
+    .accent-green::before{ background: var(--pbhs-green); }
+    .accent-red::before{ background: var(--pbhs-red); }
+    .accent-mix::before{
+      background: linear-gradient(to bottom, var(--pbhs-red), var(--pbhs-green));
+    }
+
+    /* Footer */
+    .footer{
+      margin-top: 22px;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.9rem;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <!-- Put your logo image file in the SAME folder as this page and name it: PBHSCrestColour.jpg -->
+        <div class="logo">
+          <img src="PBHSCrestColour.jpg" alt="School Logo">
+        </div>
+
+        <div class="titleblock">
+          <h1 class="title">Delphi Practical Animations</h1>
+          <p class="subtitle">Arrays • PBHS colours: red, white &amp; green</p>
+        </div>
+      </div>
+
+      <!-- optional quick links -->
+      <div class="navlinks">
+        <a href="index.html">Home</a>
+        <a href="arraymenu.html">Arrays Menu</a>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h2>Arrays Menu</h2>
+      <p>
+        Choose a section below. You can add more buttons later by copying the marked button block in the code.
+      </p>
+    </div>
+
+    <div class="grid">
+
+      <!-- ===========================================================
+           COPY/PASTE BUTTON BLOCK (duplicate this whole <a>...</a>)
+           Change ONLY:
+           1) href="arrays1.html"   (the page to open)
+           2) <h3>Caption</h3>      (button title)
+           3) <p>Description</p>    (small description)
+           4) Optional: class="bigbtn accent-..." to change accent colour
+           =========================================================== -->
+
+      <a class="bigbtn accent-mix" href="arrays1.html">
+        <div class="btntext">
+          <h3>Basic Arrays</h3>
+          <p>Declaration, assignment, access, loops, and searching (your main intro animation).</p>
+        </div>
+        <div class="chip">Open →</div>
+      </a>
+
+      <a class="bigbtn accent-green" href="parallel.html">
+        <div class="btntext">
+          <h3>Parallel Arrays and Calculations</h3>
+          <p>Work with related arrays using the same index; include totals/averages and outputs.</p>
+        </div>
+        <div class="chip">Open →</div>
+      </a>
+
+      <a class="bigbtn accent-red" href="insertdelete.html">
+        <div class="btntext">
+          <h3>Insert/Delete and Sorting</h3>
+          <p>Shift values up/down, insert at a position, delete, and apply sorting ideas.</p>
+        </div>
+        <div class="chip">Open →</div>
+      </a>
+
+      <a class="bigbtn accent-mix" href="advancedarrays.html">
+        <div class="btntext">
+          <h3>Advanced Arrays</h3>
+          <p>Challenges: merging, removing duplicates, searching optimisations, 2D extensions.</p>
+        </div>
+        <div class="chip">Open →</div>
+      </a>
+
+      <!-- ===========================================================
+           END COPY/PASTE BUTTON BLOCK
+           =========================================================== -->
+
+    </div>
+
+    <div class="footer">
+      © PBHS • GitHub Pages menu • Update links as you add more animations
+    </div>
+
+  </div>
+</body>
+</html>
