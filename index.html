@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PBHS • Delphi Practical Animations</title>
+
+  <style>
+    :root{
+      --pbhs-red:#b11226;
+      --pbhs-green:#0f6a37;
+      --pbhs-white:#ffffff;
+      --bg:#0b0f14;
+      --panel:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --border:rgba(255,255,255,.12);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(177,18,38,.25), transparent 60%),
+                  radial-gradient(1000px 600px at 80% 0%, rgba(15,106,55,.25), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+    }
+
+    .wrap{max-width:1100px; margin:0 auto; padding:28px 18px 60px;}
+    header{
+      display:flex; gap:16px; align-items:center;
+      padding:18px;
+      background: linear-gradient(90deg, rgba(177,18,38,.18), rgba(15,106,55,.18));
+      border:1px solid var(--border);
+      border-radius:18px;
+    }
+    .crest{
+      width:70px; height:70px; border-radius:12px;
+      border:1px solid var(--border);
+      background:#fff;
+      object-fit:contain;
+    }
+    .title h1{margin:0; font-size:1.6rem; letter-spacing:.2px;}
+    .title p{margin:.35rem 0 0; color:var(--muted);}
+
+    .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+    .badge{
+      font-size:.85rem;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+    }
+    .badge.red{border-color:rgba(177,18,38,.45)}
+    .badge.green{border-color:rgba(15,106,55,.45)}
+
+    .grid{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap:14px;
+    }
+
+    .card{
+      background: rgba(17,24,39,.85);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:16px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .card:hover{transform:translateY(-2px); border-color:rgba(255,255,255,.22)}
+    .card h2{margin:0 0 8px; font-size:1.05rem;}
+    .card p{margin:0 0 14px; color:var(--muted); line-height:1.35;}
+    .btn{
+      display:inline-block;
+      text-decoration:none;
+      font-weight:700;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+    }
+    .btn.red{background: rgba(177,18,38,.18); border-color:rgba(177,18,38,.45)}
+    .btn.green{background: rgba(15,106,55,.18); border-color:rgba(15,106,55,.45)}
+    .btn:hover{filter:brightness(1.08)}
+
+    footer{
+      margin-top:26px;
+      color:var(--muted);
+      font-size:.9rem;
+      text-align:center;
+    }
+    .note{
+      margin-top:14px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+    }
+    .small{font-size:.85rem}
+    code{color:#fff}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <img class="crest" src="assets/PBHSCrestColour.jpg" alt="PBHS Crest">
+      <div class="title">
+        <h1>PBHS • Delphi Practical Animations</h1>
+        <p>Interactive animations for exam prep (Grade 10–12)</p>
+
+        <div class="badge-row">
+          <div class="badge red">Red</div>
+          <div class="badge">White</div>
+          <div class="badge green">Green</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Arrays</h2>
+        <p>1D arrays, parallel arrays, search/loops and visual tracing.</p>
+        <a class="btn red" href="arrays/index.html">Open Arrays</a>
+      </div>
+
+      <div class="card">
+        <h2>Strings</h2>
+        <p>Length, Pos, Copy, Delete, string manipulation patterns.</p>
+        <a class="btn green" href="strings/index.html">Open Strings</a>
+      </div>
+
+      <div class="card">
+        <h2>Teacher Only</h2>
+        <p>Tracking / analytics page (restricted link — don’t share with learners).</p>
+        <a class="btn" href="teacher/index.html">Open Teacher Section</a>
+      </div>
+    </div>
+
+    <div class="note">
+      <div><strong>Why this page will display:</strong> it uses <em>no</em> Canva SDK and no external libraries.</div>
+      <div class="small">If you later add animations that use JavaScript files, I’ll show you the best way to host them so Chrome always loads everything.</div>
+    </div>
+
+    <footer>
+      Pretoria Boys High School • IT Department
+    </footer>
+  </div>
+</body>
+</html>
