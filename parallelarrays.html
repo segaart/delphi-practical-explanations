@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parallel Arrays Animation</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    
+    .code-highlight {
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.3) 0%, rgba(251, 191, 36, 0.1) 100%);
+      border-left: 3px solid #f59e0b;
+      animation: pulse-highlight 0.5s ease-in-out;
+    }
+    
+    @keyframes pulse-highlight {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .array-cell-active {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    }
+    
+    .array-cell {
+      transition: all 0.3s ease;
+    }
+    
+    .value-update {
+      animation: value-pop 0.4s ease-out;
+    }
+    
+    @keyframes value-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); color: #fbbf24; }
+      100% { transform: scale(1); }
+    }
+    
+    .loop-indicator {
+      animation: bounce-arrow 0.6s ease-in-out infinite;
+    }
+    
+    @keyframes bounce-arrow {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app-wrapper" class="h-full w-full overflow-auto" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);">
+   <div class="min-h-full p-6"><!-- Header -->
+    <div class="text-center mb-8">
+     <h1 id="main-title" class="font-display text-3xl font-bold text-white mb-4">Parallel Arrays in Delphi</h1><!-- Level Selector Buttons -->
+     <div class="flex justify-center gap-3 mb-6 flex-wrap"><button id="nav-level-1" class="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white font-display font-semibold rounded-lg transition-all"> Level 1: Total &amp; Average </button> <button id="nav-level-2" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all"> Level 2: Maximum Value </button> <button id="nav-level-3" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all"> Level 3: Minimum Value </button> <button id="nav-level-4" class="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all"> Level 4: Counting </button>
+     </div>
+     <p id="level-label" class="text-amber-400 font-display text-lg font-medium">Level 1: Totalling &amp; Average</p>
+    </div><!-- Main Content -->
+    <div id="level-1" class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto"><!-- Left: Code Block -->
+     <div class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-2xl">
+      <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-2">
+       <div class="w-3 h-3 rounded-full bg-red-500"></div>
+       <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+       <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-3 text-slate-400 font-mono-code text-sm">Unit1.pas</span>
+      </div>
+      <div class="p-4 font-mono-code text-sm leading-relaxed overflow-auto max-h-96">
+       <div id="code-container">
+        <div id="line-1" class="code-line px-3 py-1 rounded text-slate-300">
+         <span class="text-fuchsia-400">var</span>
+        </div>
+        <div id="line-2" class="code-line px-3 py-1 rounded text-slate-300">
+         arrNumbers: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> Integer;
+        </div>
+        <div id="line-3" class="code-line px-3 py-1 rounded text-slate-300">
+         arrNames: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> String;
+        </div>
+        <div id="line-4" class="code-line px-3 py-1 rounded text-slate-300">
+         iLoop: Integer;
+        </div>
+        <div id="line-5" class="code-line px-3 py-1 rounded text-slate-300">
+         iTotal: Integer;
+        </div>
+        <div id="line-6" class="code-line px-3 py-1 rounded text-slate-300">
+         rAverage: <span class="text-cyan-400">Real</span>;
+        </div>
+        <div id="line-7" class="code-line px-3 py-1 rounded text-slate-300">
+         &nbsp;
+        </div>
+        <div id="line-8" class="code-line px-3 py-1 rounded text-slate-300">
+         <span class="text-fuchsia-400">begin</span>
+        </div>
+        <div id="line-9" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Initialize total</span>
+        </div>
+        <div id="line-10" class="code-line px-3 py-1 rounded text-slate-300">
+         iTotal := <span class="text-orange-400">0</span>;
+        </div>
+        <div id="line-11" class="code-line px-3 py-1 rounded text-slate-300">
+         &nbsp;
+        </div>
+        <div id="line-12" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Loop through array</span>
+        </div>
+        <div id="line-13" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">for</span> iLoop := <span class="text-orange-400">1</span> <span class="text-fuchsia-400">to</span> <span class="text-orange-400">5</span> <span class="text-fuchsia-400">do</span>
+        </div>
+        <div id="line-14" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+        </div>
+        <div id="line-15" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Add current element to total</span>
+        </div>
+        <div id="line-16" class="code-line px-3 py-1 rounded text-slate-300">
+         iTotal := iTotal + arrNumbers[iLoop];
+        </div>
+        <div id="line-17" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+        </div>
+        <div id="line-18" class="code-line px-3 py-1 rounded text-slate-300">
+         &nbsp;
+        </div>
+        <div id="line-19" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Calculate average</span>
+        </div>
+        <div id="line-20" class="code-line px-3 py-1 rounded text-slate-300">
+         rAverage := iTotal / <span class="text-orange-400">5</span>;
+        </div>
+        <div id="line-21" class="code-line px-3 py-1 rounded text-slate-300">
+         &nbsp;
+        </div>
+        <div id="line-22" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Display results</span>
+        </div>
+        <div id="line-23" class="code-line px-3 py-1 rounded text-slate-300">
+         ShowMessage(<span class="text-amber-300">'Total: '</span> + IntToStr(iTotal));
+        </div>
+        <div id="line-24" class="code-line px-3 py-1 rounded text-slate-300">
+         ShowMessage(<span class="text-amber-300">'Average: '</span> + FloatToStr(rAverage));
+        </div>
+        <div id="line-25" class="code-line px-3 py-1 rounded text-slate-300">
+         <span class="text-fuchsia-400">end</span>;
+        </div>
+       </div>
+      </div>
+     </div><!-- Right: Arrays Visualization -->
+     <div class="flex-1">
+      <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-6 shadow-2xl">
+       <h2 class="font-display text-xl font-semibold text-white mb-6 text-center">Parallel Arrays</h2><!-- Arrays Container -->
+       <div class="flex justify-center gap-8"><!-- Numbers Array -->
+        <div class="text-center">
+         <h3 class="font-mono-code text-cyan-400 mb-3 text-sm">arrNumbers</h3>
+         <div class="space-y-2">
+          <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+           <div id="num-1" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+            10
+           </div>
+          </div>
+          <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+           <div id="num-2" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+            25
+           </div>
+          </div>
+          <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+           <div id="num-3" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+            15
+           </div>
+          </div>
+          <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+           <div id="num-4" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+            30
+           </div>
+          </div>
+          <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+           <div id="num-5" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+            20
+           </div>
+          </div>
+         </div>
+        </div><!-- Names Array -->
+        <div class="text-center">
+         <h3 class="font-mono-code text-fuchsia-400 mb-3 text-sm">arrNames</h3>
+         <div class="space-y-2">
+          <div class="flex items-center gap-2">
+           <div id="name-1" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+            'Alice'
+           </div><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+          </div>
+          <div class="flex items-center gap-2">
+           <div id="name-2" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+            'Bob'
+           </div><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+          </div>
+          <div class="flex items-center gap-2">
+           <div id="name-3" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+            'Carol'
+           </div><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+          </div>
+          <div class="flex items-center gap-2">
+           <div id="name-4" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+            'David'
+           </div><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+          </div>
+          <div class="flex items-center gap-2">
+           <div id="name-5" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+            'Eve'
+           </div><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+          </div>
+         </div>
+        </div>
+       </div><!-- Variables Display -->
+       <div class="mt-8 bg-slate-800/50 rounded-lg p-4 border border-slate-600">
+        <h3 class="font-display text-sm text-slate-400 mb-3 text-center">Variables</h3>
+        <div class="flex justify-center gap-8">
+         <div class="text-center"><span class="font-mono-code text-amber-400 text-sm">iLoop</span>
+          <div id="var-iLoop" class="mt-1 w-14 h-10 bg-slate-900 border-2 border-amber-500/50 rounded-lg flex items-center justify-center font-mono-code text-amber-300 font-bold text-lg">
+           -
+          </div>
+         </div>
+         <div class="text-center"><span class="font-mono-code text-emerald-400 text-sm">iTotal</span>
+          <div id="var-iTotal" class="mt-1 w-20 h-10 bg-slate-900 border-2 border-emerald-500/50 rounded-lg flex items-center justify-center font-mono-code text-emerald-300 font-bold text-lg">
+           -
+          </div>
+         </div>
+         <div class="text-center"><span class="font-mono-code text-blue-400 text-sm">rAverage</span>
+          <div id="var-rAverage" class="mt-1 w-20 h-10 bg-slate-900 border-2 border-blue-500/50 rounded-lg flex items-center justify-center font-mono-code text-blue-300 font-bold text-lg">
+           -
+          </div>
+         </div>
+        </div>
+       </div><!-- Calculation Display -->
+       <div id="calculation-display" class="mt-4 bg-slate-800/30 rounded-lg p-3 border border-slate-700 text-center hidden">
+        <p id="calculation-text" class="font-mono-code text-slate-300 text-sm"></p>
+       </div>
+      </div><!-- Controls -->
+      <div class="mt-6 flex flex-wrap justify-center gap-4"><button id="btn-start" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M8 5v14l11-7z" />
+        </svg> Start Animation </button> <button id="btn-step" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+        </svg> Step </button> <button id="btn-reset" class="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-slate-500/30 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+         <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+        </svg> Reset </button>
+      </div><!-- Status Message -->
+      <div id="status-message" class="mt-4 text-center">
+       <p class="font-display text-slate-400 text-sm">Click "Start Animation" to begin or "Step" to go line by line</p>
+      </div>
+     </div>
+    </div><!-- Level 2 Content (Hidden) -->
+    <div id="level-2" class="hidden"><!-- Main Content Level 2 -->
+     <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto"><!-- Left: Code Block Level 2 -->
+      <div class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-2xl">
+       <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-3 text-slate-400 font-mono-code text-sm">Unit1.pas</span>
+       </div>
+       <div class="p-4 font-mono-code text-sm leading-relaxed overflow-auto max-h-96">
+        <div id="code-container-l2">
+         <div id="l2-line-1" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">var</span>
+         </div>
+         <div id="l2-line-2" class="code-line px-3 py-1 rounded text-slate-300">
+          arrAges: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> Integer;
+         </div>
+         <div id="l2-line-3" class="code-line px-3 py-1 rounded text-slate-300">
+          arrNames: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> String;
+         </div>
+         <div id="l2-line-4" class="code-line px-3 py-1 rounded text-slate-300">
+          iLoop: Integer;
+         </div>
+         <div id="l2-line-5" class="code-line px-3 py-1 rounded text-slate-300">
+          iMaxAge: Integer;
+         </div>
+         <div id="l2-line-6" class="code-line px-3 py-1 rounded text-slate-300">
+          sOldestPerson: String;
+         </div>
+         <div id="l2-line-7" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l2-line-8" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l2-line-9" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Initialize maximum age from first element</span>
+         </div>
+         <div id="l2-line-10" class="code-line px-3 py-1 rounded text-slate-300">
+          iMaxAge := arrAges[<span class="text-orange-400">1</span>];
+         </div>
+         <div id="l2-line-11" class="code-line px-3 py-1 rounded text-slate-300">
+          sOldestPerson := arrNames[<span class="text-orange-400">1</span>];
+         </div>
+         <div id="l2-line-12" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l2-line-13" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Find maximum age</span>
+         </div>
+         <div id="l2-line-14" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">for</span> iLoop := <span class="text-orange-400">1</span> <span class="text-fuchsia-400">to</span> <span class="text-orange-400">5</span> <span class="text-fuchsia-400">do</span>
+         </div>
+         <div id="l2-line-15" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l2-line-16" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Compare with current maximum</span>
+         </div>
+         <div id="l2-line-17" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">if</span> arrAges[iLoop] &gt; iMaxAge <span class="text-fuchsia-400">then</span>
+         </div>
+         <div id="l2-line-18" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l2-line-19" class="code-line px-3 py-1 rounded text-slate-300">
+          iMaxAge := arrAges[iLoop];
+         </div>
+         <div id="l2-line-20" class="code-line px-3 py-1 rounded text-slate-300">
+          sOldestPerson := arrNames[iLoop];
+         </div>
+         <div id="l2-line-21" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+         </div>
+         <div id="l2-line-22" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+         </div>
+         <div id="l2-line-23" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l2-line-24" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Display result (outside loop)</span>
+         </div>
+         <div id="l2-line-25" class="code-line px-3 py-1 rounded text-slate-300">
+          ShowMessage(sOldestPerson + <span class="text-amber-300">' is oldest: '</span> +
+         </div>
+         <div id="l2-line-26" class="code-line px-3 py-1 rounded text-slate-300">
+          IntToStr(iMaxAge) + <span class="text-amber-300">' years'</span>);
+         </div>
+         <div id="l2-line-27" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">end</span>;
+         </div>
+        </div>
+       </div>
+      </div><!-- Right: Arrays Visualization Level 2 -->
+      <div class="flex-1">
+       <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-6 shadow-2xl">
+        <h2 class="font-display text-xl font-semibold text-white mb-6 text-center">Parallel Arrays</h2><!-- Arrays Container -->
+        <div class="flex justify-center gap-8"><!-- Ages Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-cyan-400 mb-3 text-sm">arrAges</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+            <div id="age-1" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             28
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+            <div id="age-2" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             45
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+            <div id="age-3" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             32
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+            <div id="age-4" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             52
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+            <div id="age-5" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             38
+            </div>
+           </div>
+          </div>
+         </div><!-- Names Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-fuchsia-400 mb-3 text-sm">arrNames</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2">
+            <div id="pname-1" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Alice'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-2" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Bob'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-3" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Carol'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-4" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'David'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-5" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Eve'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+           </div>
+          </div>
+         </div>
+        </div><!-- Variables Display -->
+        <div class="mt-8 bg-slate-800/50 rounded-lg p-4 border border-slate-600">
+         <h3 class="font-display text-sm text-slate-400 mb-3 text-center">Variables</h3>
+         <div class="flex justify-center gap-6 flex-wrap">
+          <div class="text-center"><span class="font-mono-code text-amber-400 text-sm">iLoop</span>
+           <div id="l2-var-iLoop" class="mt-1 w-14 h-10 bg-slate-900 border-2 border-amber-500/50 rounded-lg flex items-center justify-center font-mono-code text-amber-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-emerald-400 text-sm">iMaxAge</span>
+           <div id="l2-var-iMaxAge" class="mt-1 w-20 h-10 bg-slate-900 border-2 border-emerald-500/50 rounded-lg flex items-center justify-center font-mono-code text-emerald-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-blue-400 text-sm">sOldestPerson</span>
+           <div id="l2-var-sOldestPerson" class="mt-1 w-28 h-10 bg-slate-900 border-2 border-blue-500/50 rounded-lg flex items-center justify-center font-mono-code text-blue-300 font-bold text-xs">
+            -
+           </div>
+          </div>
+         </div>
+        </div><!-- Calculation Display -->
+        <div id="l2-calculation-display" class="mt-4 bg-slate-800/30 rounded-lg p-3 border border-slate-700 text-center hidden">
+         <p id="l2-calculation-text" class="font-mono-code text-slate-300 text-sm"></p>
+        </div>
+       </div><!-- Controls -->
+       <div class="mt-6 flex flex-wrap justify-center gap-4"><button id="btn-start-l2" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+         </svg> Start Animation </button> <button id="btn-step-l2" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+         </svg> Step </button> <button id="btn-reset-l2" class="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-slate-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+         </svg> Reset </button>
+       </div><!-- Status Message -->
+       <div id="l2-status-message" class="mt-4 text-center">
+        <p class="font-display text-slate-400 text-sm">Click "Start Animation" to begin or "Step" to go line by line</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Level 3 Content (Hidden) -->
+    <div id="level-3" class="hidden"><!-- Main Content Level 3 -->
+     <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto"><!-- Left: Code Block Level 3 -->
+      <div class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-2xl">
+       <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-3 text-slate-400 font-mono-code text-sm">Unit1.pas</span>
+       </div>
+       <div class="p-4 font-mono-code text-sm leading-relaxed overflow-auto max-h-96">
+        <div id="code-container-l3">
+         <div id="l3-line-1" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">var</span>
+         </div>
+         <div id="l3-line-2" class="code-line px-3 py-1 rounded text-slate-300">
+          arrAges: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> Integer;
+         </div>
+         <div id="l3-line-3" class="code-line px-3 py-1 rounded text-slate-300">
+          arrNames: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> String;
+         </div>
+         <div id="l3-line-4" class="code-line px-3 py-1 rounded text-slate-300">
+          iLoop: Integer;
+         </div>
+         <div id="l3-line-5" class="code-line px-3 py-1 rounded text-slate-300">
+          iMinAge: Integer;
+         </div>
+         <div id="l3-line-6" class="code-line px-3 py-1 rounded text-slate-300">
+          sYoungestPerson: String;
+         </div>
+         <div id="l3-line-7" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l3-line-8" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l3-line-9" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Initialize minimum age from first element</span>
+         </div>
+         <div id="l3-line-10" class="code-line px-3 py-1 rounded text-slate-300">
+          iMinAge := arrAges[<span class="text-orange-400">1</span>];
+         </div>
+         <div id="l3-line-11" class="code-line px-3 py-1 rounded text-slate-300">
+          sYoungestPerson := arrNames[<span class="text-orange-400">1</span>];
+         </div>
+         <div id="l3-line-12" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l3-line-13" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Find minimum age</span>
+         </div>
+         <div id="l3-line-14" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">for</span> iLoop := <span class="text-orange-400">1</span> <span class="text-fuchsia-400">to</span> <span class="text-orange-400">5</span> <span class="text-fuchsia-400">do</span>
+         </div>
+         <div id="l3-line-15" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l3-line-16" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Compare with current minimum</span>
+         </div>
+         <div id="l3-line-17" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">if</span> arrAges[iLoop] &lt; iMinAge <span class="text-fuchsia-400">then</span>
+         </div>
+         <div id="l3-line-18" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l3-line-19" class="code-line px-3 py-1 rounded text-slate-300">
+          iMinAge := arrAges[iLoop];
+         </div>
+         <div id="l3-line-20" class="code-line px-3 py-1 rounded text-slate-300">
+          sYoungestPerson := arrNames[iLoop];
+         </div>
+         <div id="l3-line-21" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+         </div>
+         <div id="l3-line-22" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+         </div>
+         <div id="l3-line-23" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l3-line-24" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Display result (outside loop)</span>
+         </div>
+         <div id="l3-line-25" class="code-line px-3 py-1 rounded text-slate-300">
+          ShowMessage(sYoungestPerson + <span class="text-amber-300">' is youngest: '</span> +
+         </div>
+         <div id="l3-line-26" class="code-line px-3 py-1 rounded text-slate-300">
+          IntToStr(iMinAge) + <span class="text-amber-300">' years'</span>);
+         </div>
+         <div id="l3-line-27" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">end</span>;
+         </div>
+        </div>
+       </div>
+      </div><!-- Right: Arrays Visualization Level 3 -->
+      <div class="flex-1">
+       <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-6 shadow-2xl">
+        <h2 class="font-display text-xl font-semibold text-white mb-6 text-center">Parallel Arrays</h2><!-- Arrays Container -->
+        <div class="flex justify-center gap-8"><!-- Ages Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-cyan-400 mb-3 text-sm">arrAges</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+            <div id="age-l3-1" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             28
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+            <div id="age-l3-2" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             45
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+            <div id="age-l3-3" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             32
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+            <div id="age-l3-4" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             52
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+            <div id="age-l3-5" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             38
+            </div>
+           </div>
+          </div>
+         </div><!-- Names Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-fuchsia-400 mb-3 text-sm">arrNames</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2">
+            <div id="pname-l3-1" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Alice'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l3-2" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Bob'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l3-3" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Carol'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l3-4" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'David'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l3-5" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Eve'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+           </div>
+          </div>
+         </div>
+        </div><!-- Variables Display -->
+        <div class="mt-8 bg-slate-800/50 rounded-lg p-4 border border-slate-600">
+         <h3 class="font-display text-sm text-slate-400 mb-3 text-center">Variables</h3>
+         <div class="flex justify-center gap-6 flex-wrap">
+          <div class="text-center"><span class="font-mono-code text-amber-400 text-sm">iLoop</span>
+           <div id="l3-var-iLoop" class="mt-1 w-14 h-10 bg-slate-900 border-2 border-amber-500/50 rounded-lg flex items-center justify-center font-mono-code text-amber-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-emerald-400 text-sm">iMinAge</span>
+           <div id="l3-var-iMinAge" class="mt-1 w-20 h-10 bg-slate-900 border-2 border-emerald-500/50 rounded-lg flex items-center justify-center font-mono-code text-emerald-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-blue-400 text-sm">sYoungestPerson</span>
+           <div id="l3-var-sYoungestPerson" class="mt-1 w-32 h-10 bg-slate-900 border-2 border-blue-500/50 rounded-lg flex items-center justify-center font-mono-code text-blue-300 font-bold text-xs">
+            -
+           </div>
+          </div>
+         </div>
+        </div><!-- Calculation Display -->
+        <div id="l3-calculation-display" class="mt-4 bg-slate-800/30 rounded-lg p-3 border border-slate-700 text-center hidden">
+         <p id="l3-calculation-text" class="font-mono-code text-slate-300 text-sm"></p>
+        </div>
+       </div><!-- Controls -->
+       <div class="mt-6 flex flex-wrap justify-center gap-4"><button id="btn-start-l3" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+         </svg> Start Animation </button> <button id="btn-step-l3" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+         </svg> Step </button> <button id="btn-reset-l3" class="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-slate-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+         </svg> Reset </button>
+       </div><!-- Status Message -->
+       <div id="l3-status-message" class="mt-4 text-center">
+        <p class="font-display text-slate-400 text-sm">Click "Start Animation" to begin or "Step" to go line by line</p>
+       </div>
+      </div>
+     </div>
+    </div><!-- Level 4 Content (Hidden) -->
+    <div id="level-4" class="hidden"><!-- Main Content Level 4 -->
+     <div class="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto"><!-- Left: Code Block -->
+      <div class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden shadow-2xl">
+       <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-3 text-slate-400 font-mono-code text-sm">Unit1.pas</span>
+       </div>
+       <div class="p-4 font-mono-code text-sm leading-relaxed overflow-auto max-h-96">
+        <div id="code-container-l4">
+         <div id="l4-line-1" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">var</span>
+         </div>
+         <div id="l4-line-2" class="code-line px-3 py-1 rounded text-slate-300">
+          arrAges: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> Integer;
+         </div>
+         <div id="l4-line-3" class="code-line px-3 py-1 rounded text-slate-300">
+          arrNames: <span class="text-cyan-400">array</span>[1..5] <span class="text-fuchsia-400">of</span> String;
+         </div>
+         <div id="l4-line-4" class="code-line px-3 py-1 rounded text-slate-300">
+          iLoop: Integer;
+         </div>
+         <div id="l4-line-5" class="code-line px-3 py-1 rounded text-slate-300">
+          iCount: Integer;
+         </div>
+         <div id="l4-line-6" class="code-line px-3 py-1 rounded text-slate-300">
+          iThreshold: Integer;
+         </div>
+         <div id="l4-line-7" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l4-line-8" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l4-line-9" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Initialize counter</span>
+         </div>
+         <div id="l4-line-10" class="code-line px-3 py-1 rounded text-slate-300">
+          iCount := <span class="text-orange-400">0</span>;
+         </div>
+         <div id="l4-line-11" class="code-line px-3 py-1 rounded text-slate-300">
+          iThreshold := <span class="text-orange-400">40</span>;
+         </div>
+         <div id="l4-line-12" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l4-line-13" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Count people younger than threshold</span>
+         </div>
+         <div id="l4-line-14" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">for</span> iLoop := <span class="text-orange-400">1</span> <span class="text-fuchsia-400">to</span> <span class="text-orange-400">5</span> <span class="text-fuchsia-400">do</span>
+         </div>
+         <div id="l4-line-15" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">begin</span>
+         </div>
+         <div id="l4-line-16" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Check if age is less than threshold</span>
+         </div>
+         <div id="l4-line-17" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">if</span> arrAges[iLoop] &lt; iThreshold <span class="text-fuchsia-400">then</span>
+         </div>
+         <div id="l4-line-18" class="code-line px-3 py-1 rounded text-slate-300">
+          iCount := iCount + <span class="text-orange-400">1</span>;
+         </div>
+         <div id="l4-line-19" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-fuchsia-400">end</span>;
+         </div>
+         <div id="l4-line-20" class="code-line px-3 py-1 rounded text-slate-300">
+          &nbsp;
+         </div>
+         <div id="l4-line-21" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-emerald-400">// Display result (outside loop)</span>
+         </div>
+         <div id="l4-line-22" class="code-line px-3 py-1 rounded text-slate-300">
+          ShowMessage(IntToStr(iCount) +
+         </div>
+         <div id="l4-line-23" class="code-line px-3 py-1 rounded text-slate-300"><span class="text-amber-300">' people are younger than '</span> +
+         </div>
+         <div id="l4-line-24" class="code-line px-3 py-1 rounded text-slate-300">
+          IntToStr(iThreshold));
+         </div>
+         <div id="l4-line-25" class="code-line px-3 py-1 rounded text-slate-300">
+          <span class="text-fuchsia-400">end</span>;
+         </div>
+        </div>
+       </div>
+      </div><!-- Right: Arrays Visualization -->
+      <div class="flex-1">
+       <div class="bg-slate-900/80 rounded-xl border border-slate-700 p-6 shadow-2xl">
+        <h2 class="font-display text-xl font-semibold text-white mb-6 text-center">Parallel Arrays</h2><!-- Arrays Container -->
+        <div class="flex justify-center gap-8"><!-- Ages Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-cyan-400 mb-3 text-sm">arrAges</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+            <div id="age-l4-1" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             28
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+            <div id="age-l4-2" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             45
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+            <div id="age-l4-3" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             32
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+            <div id="age-l4-4" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             52
+            </div>
+           </div>
+           <div class="flex items-center gap-2"><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+            <div id="age-l4-5" class="array-cell w-16 h-12 bg-slate-800 border-2 border-cyan-500/50 rounded-lg flex items-center justify-center font-mono-code text-white font-bold">
+             38
+            </div>
+           </div>
+          </div>
+         </div><!-- Names Array -->
+         <div class="text-center">
+          <h3 class="font-mono-code text-fuchsia-400 mb-3 text-sm">arrNames</h3>
+          <div class="space-y-2">
+           <div class="flex items-center gap-2">
+            <div id="pname-l4-1" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Alice'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[1]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l4-2" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Bob'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[2]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l4-3" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Carol'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[3]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l4-4" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'David'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[4]</span>
+           </div>
+           <div class="flex items-center gap-2">
+            <div id="pname-l4-5" class="array-cell w-24 h-12 bg-slate-800 border-2 border-fuchsia-500/50 rounded-lg flex items-center justify-center font-mono-code text-white text-sm">
+             'Eve'
+            </div><span class="font-mono-code text-slate-500 text-xs w-6">[5]</span>
+           </div>
+          </div>
+         </div>
+        </div><!-- Variables Display -->
+        <div class="mt-8 bg-slate-800/50 rounded-lg p-4 border border-slate-600">
+         <h3 class="font-display text-sm text-slate-400 mb-3 text-center">Variables</h3>
+         <div class="flex justify-center gap-6 flex-wrap">
+          <div class="text-center"><span class="font-mono-code text-amber-400 text-sm">iLoop</span>
+           <div id="l4-var-iLoop" class="mt-1 w-14 h-10 bg-slate-900 border-2 border-amber-500/50 rounded-lg flex items-center justify-center font-mono-code text-amber-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-emerald-400 text-sm">iCount</span>
+           <div id="l4-var-iCount" class="mt-1 w-16 h-10 bg-slate-900 border-2 border-emerald-500/50 rounded-lg flex items-center justify-center font-mono-code text-emerald-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+          <div class="text-center"><span class="font-mono-code text-blue-400 text-sm">iThreshold</span>
+           <div id="l4-var-iThreshold" class="mt-1 w-20 h-10 bg-slate-900 border-2 border-blue-500/50 rounded-lg flex items-center justify-center font-mono-code text-blue-300 font-bold text-lg">
+            -
+           </div>
+          </div>
+         </div>
+        </div><!-- Calculation Display -->
+        <div id="l4-calculation-display" class="mt-4 bg-slate-800/30 rounded-lg p-3 border border-slate-700 text-center hidden">
+         <p id="l4-calculation-text" class="font-mono-code text-slate-300 text-sm"></p>
+        </div>
+       </div><!-- Controls -->
+       <div class="mt-6 flex flex-wrap justify-center gap-4"><button id="btn-start-l4" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M8 5v14l11-7z" />
+         </svg> Start Animation </button> <button id="btn-step-l4" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-amber-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+         </svg> Step </button> <button id="btn-reset-l4" class="px-6 py-3 bg-slate-600 hover:bg-slate-500 text-white font-display font-semibold rounded-lg transition-all shadow-lg shadow-slate-500/30 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+          <path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+         </svg> Reset </button>
+       </div><!-- Status Message -->
+       <div id="l4-status-message" class="mt-4 text-center">
+        <p class="font-display text-slate-400 text-sm">Click "Start Animation" to begin or "Step" to go line by line</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      main_title: 'Parallel Arrays in Delphi',
+      level_label: 'Level 1: Totalling & Average',
+      background_color: '#0f172a',
+      accent_color: '#f59e0b',
+      text_color: '#f1f5f9',
+      code_bg_color: '#0f172a',
+      highlight_color: '#fbbf24'
+    };
+
+    // ========== LEVEL 1 STATE ==========
+    const level1Data = {
+      arrNumbers: [10, 25, 15, 30, 20],
+      arrNames: ['Alice', 'Bob', 'Carol', 'David', 'Eve'],
+      currentLine: 0,
+      iLoop: 0,
+      iTotal: 0,
+      rAverage: 0,
+      isRunning: false,
+      animationTimeout: null,
+      stepIndex: 0,
+      animationSteps: [
+        { line: 10, action: 'initTotal', description: 'Initialize iTotal to 0' },
+        { line: 14, action: 'startLoop', loopValue: 1, description: 'Start For loop, iLoop := 1' },
+        { line: 16, action: 'addValue', loopValue: 1, description: 'Add arrNumbers[1] to iTotal' },
+        { line: 14, action: 'nextLoop', loopValue: 2, description: 'Next iteration, iLoop := 2' },
+        { line: 16, action: 'addValue', loopValue: 2, description: 'Add arrNumbers[2] to iTotal' },
+        { line: 14, action: 'nextLoop', loopValue: 3, description: 'Next iteration, iLoop := 3' },
+        { line: 16, action: 'addValue', loopValue: 3, description: 'Add arrNumbers[3] to iTotal' },
+        { line: 14, action: 'nextLoop', loopValue: 4, description: 'Next iteration, iLoop := 4' },
+        { line: 16, action: 'addValue', loopValue: 4, description: 'Add arrNumbers[4] to iTotal' },
+        { line: 14, action: 'nextLoop', loopValue: 5, description: 'Next iteration, iLoop := 5' },
+        { line: 16, action: 'addValue', loopValue: 5, description: 'Add arrNumbers[5] to iTotal' },
+        { line: 17, action: 'endLoop', description: 'Loop complete' },
+        { line: 20, action: 'calcAverage', description: 'Calculate average: rAverage := iTotal / 5' },
+        { line: 23, action: 'showTotal', description: 'Display total' },
+        { line: 24, action: 'showAverage', description: 'Display average' }
+      ]
+    };
+
+    // ========== LEVEL 2 STATE ==========
+    const level2Data = {
+      arrAges: [28, 45, 32, 52, 38],
+      arrNames: ['Alice', 'Bob', 'Carol', 'David', 'Eve'],
+      currentLine: 0,
+      iLoop: 0,
+      iMaxAge: 0,
+      sOldestPerson: '',
+      isRunning: false,
+      animationTimeout: null,
+      stepIndex: 0,
+      animationSteps: [
+        { line: 10, action: 'initMax', description: 'Initialize iMaxAge from arrAges[1] = 28' },
+        { line: 11, action: 'initName', description: 'Initialize sOldestPerson from arrNames[1]' },
+        { line: 14, action: 'startLoop', loopValue: 1, description: 'Start For loop, iLoop := 1' },
+        { line: 17, action: 'compare', loopValue: 1, description: 'Compare: 28 > 28? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 2, description: 'Next iteration, iLoop := 2' },
+        { line: 17, action: 'compare', loopValue: 2, description: 'Compare: 45 > 28? YES - update max' },
+        { line: 19, action: 'updateMax', loopValue: 2, description: 'Set iMaxAge := 45' },
+        { line: 20, action: 'updateName', loopValue: 2, description: 'Set sOldestPerson := "Bob"' },
+        { line: 14, action: 'nextLoop', loopValue: 3, description: 'Next iteration, iLoop := 3' },
+        { line: 17, action: 'compare', loopValue: 3, description: 'Compare: 32 > 45? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 4, description: 'Next iteration, iLoop := 4' },
+        { line: 17, action: 'compare', loopValue: 4, description: 'Compare: 52 > 45? YES - update max' },
+        { line: 19, action: 'updateMax', loopValue: 4, description: 'Set iMaxAge := 52' },
+        { line: 20, action: 'updateName', loopValue: 4, description: 'Set sOldestPerson := "David"' },
+        { line: 14, action: 'nextLoop', loopValue: 5, description: 'Next iteration, iLoop := 5' },
+        { line: 17, action: 'compare', loopValue: 5, description: 'Compare: 38 > 52? NO - skip update' },
+        { line: 19, action: 'endLoop', description: 'Loop complete' },
+        { line: 22, action: 'showResult', description: 'Display result (outside loop): David is 52 years old' }
+      ]
+    };
+
+    // ========== LEVEL 3 STATE ==========
+    const level3Data = {
+      arrAges: [28, 45, 32, 52, 38],
+      arrNames: ['Alice', 'Bob', 'Carol', 'David', 'Eve'],
+      currentLine: 0,
+      iLoop: 0,
+      iMinAge: 0,
+      sYoungestPerson: '',
+      isRunning: false,
+      animationTimeout: null,
+      stepIndex: 0,
+      animationSteps: [
+        { line: 10, action: 'initMin', description: 'Initialize iMinAge from arrAges[1] = 28' },
+        { line: 11, action: 'initName', description: 'Initialize sYoungestPerson from arrNames[1]' },
+        { line: 14, action: 'startLoop', loopValue: 1, description: 'Start For loop, iLoop := 1' },
+        { line: 17, action: 'compare', loopValue: 1, description: 'Compare: 28 < 28? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 2, description: 'Next iteration, iLoop := 2' },
+        { line: 17, action: 'compare', loopValue: 2, description: 'Compare: 45 < 28? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 3, description: 'Next iteration, iLoop := 3' },
+        { line: 17, action: 'compare', loopValue: 3, description: 'Compare: 32 < 28? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 4, description: 'Next iteration, iLoop := 4' },
+        { line: 17, action: 'compare', loopValue: 4, description: 'Compare: 52 < 28? NO - skip update' },
+        { line: 14, action: 'nextLoop', loopValue: 5, description: 'Next iteration, iLoop := 5' },
+        { line: 17, action: 'compare', loopValue: 5, description: 'Compare: 38 < 28? NO - skip update' },
+        { line: 19, action: 'endLoop', description: 'Loop complete' },
+        { line: 22, action: 'showResult', description: 'Display result (outside loop): Alice is 28 years old' }
+      ]
+    };
+
+    // ========== LEVEL 4 STATE ==========
+    const level4Data = {
+      arrAges: [28, 45, 32, 52, 38],
+      arrNames: ['Alice', 'Bob', 'Carol', 'David', 'Eve'],
+      currentLine: 0,
+      iLoop: 0,
+      iCount: 0,
+      iThreshold: 40,
+      isRunning: false,
+      animationTimeout: null,
+      stepIndex: 0,
+      animationSteps: [
+        { line: 10, action: 'initCount', description: 'Initialize iCount to 0' },
+        { line: 11, action: 'initThreshold', description: 'Set iThreshold to 40' },
+        { line: 14, action: 'startLoop', loopValue: 1, description: 'Start For loop, iLoop := 1' },
+        { line: 17, action: 'checkCondition', loopValue: 1, description: 'Check: 28 < 40? YES - increment counter' },
+        { line: 18, action: 'incrementCount', loopValue: 1, description: 'iCount := iCount + 1 = 1' },
+        { line: 14, action: 'nextLoop', loopValue: 2, description: 'Next iteration, iLoop := 2' },
+        { line: 17, action: 'checkCondition', loopValue: 2, description: 'Check: 45 < 40? NO - skip' },
+        { line: 14, action: 'nextLoop', loopValue: 3, description: 'Next iteration, iLoop := 3' },
+        { line: 17, action: 'checkCondition', loopValue: 3, description: 'Check: 32 < 40? YES - increment counter' },
+        { line: 18, action: 'incrementCount', loopValue: 3, description: 'iCount := iCount + 1 = 2' },
+        { line: 14, action: 'nextLoop', loopValue: 4, description: 'Next iteration, iLoop := 4' },
+        { line: 17, action: 'checkCondition', loopValue: 4, description: 'Check: 52 < 40? NO - skip' },
+        { line: 14, action: 'nextLoop', loopValue: 5, description: 'Next iteration, iLoop := 5' },
+        { line: 17, action: 'checkCondition', loopValue: 5, description: 'Check: 38 < 40? YES - increment counter' },
+        { line: 18, action: 'incrementCount', loopValue: 5, description: 'iCount := iCount + 1 = 3' },
+        { line: 19, action: 'endLoop', description: 'Loop complete' },
+        { line: 22, action: 'showResult', description: 'Display result (outside loop): 3 people are younger than 40' }
+      ]
+    };
+
+    // ========== SHARED UTILITIES ==========
+    function clearHighlights(container) {
+      const codeEl = document.getElementById(container);
+      if (!codeEl) return;
+      codeEl.querySelectorAll('.code-line').forEach(line => {
+        line.classList.remove('code-highlight');
+      });
+    }
+
+    function highlightLine(lineNum, levelId) {
+      const containerMap = {
+        'line-': 'code-container',
+        'l2-line-': 'code-container-l2',
+        'l3-line-': 'code-container-l3',
+        'l4-line-': 'code-container-l4'
+      };
+      const container = containerMap[levelId];
+      clearHighlights(container);
+      const line = document.getElementById(`${levelId}${lineNum}`);
+      if (line) {
+        line.classList.add('code-highlight');
+        line.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function clearArrayHighlights(prefix) {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`${prefix}-${i}`);
+        if (el) {
+          el.classList.remove('array-cell-active');
+          el.style.borderColor = '';
+        }
+      }
+    }
+
+    function highlightArrayCell(index, prefix) {
+      clearArrayHighlights(prefix);
+      const cell = document.getElementById(`${prefix}-${index}`);
+      if (cell) {
+        cell.classList.add('array-cell-active');
+        cell.style.borderColor = '#fbbf24';
+      }
+    }
+
+    function updateVariable(varName, value, levelPrefix) {
+      const el = document.getElementById(`${levelPrefix}var-${varName}`);
+      if (el) {
+        el.textContent = value;
+        el.classList.add('value-update');
+        setTimeout(() => el.classList.remove('value-update'), 400);
+      }
+    }
+
+    function showCalculation(text, levelPrefix) {
+      const display = document.getElementById(`${levelPrefix}calculation-display`);
+      const textEl = document.getElementById(`${levelPrefix}calculation-text`);
+      if (display) {
+        display.classList.remove('hidden');
+        textEl.textContent = text;
+      }
+    }
+
+    function updateStatus(message, levelPrefix) {
+      const el = document.getElementById(`${levelPrefix}status-message`);
+      if (el) {
+        el.innerHTML = `<p class="font-display text-slate-300 text-sm">${message}</p>`;
+      }
+    }
+
+    // ========== LEVEL 1 FUNCTIONS ==========
+    function executeStepLevel1() {
+      if (level1Data.stepIndex >= level1Data.animationSteps.length) {
+        level1Data.isRunning = false;
+        updateStatus(`✅ Animation complete! Total = ${level1Data.iTotal}, Average = ${level1Data.rAverage.toFixed(2)}`, '');
+        return false;
+      }
+
+      const step = level1Data.animationSteps[level1Data.stepIndex];
+      highlightLine(step.line, 'line-');
+
+      switch (step.action) {
+        case 'initTotal':
+          level1Data.iTotal = 0;
+          updateVariable('iTotal', level1Data.iTotal, '');
+          showCalculation('iTotal := 0', '');
+          break;
+
+        case 'startLoop':
+        case 'nextLoop':
+          level1Data.iLoop = step.loopValue;
+          updateVariable('iLoop', level1Data.iLoop, '');
+          highlightArrayCell(level1Data.iLoop, 'num');
+          showCalculation(`iLoop := ${level1Data.iLoop} (checking: ${level1Data.iLoop} <= 5 ✓)`, '');
+          break;
+
+        case 'addValue':
+          const val = level1Data.arrNumbers[step.loopValue - 1];
+          const oldTotal = level1Data.iTotal;
+          level1Data.iTotal += val;
+          updateVariable('iTotal', level1Data.iTotal, '');
+          highlightArrayCell(step.loopValue, 'num');
+          showCalculation(`iTotal := ${oldTotal} + ${val} = ${level1Data.iTotal}`, '');
+          break;
+
+        case 'endLoop':
+          showCalculation('Loop finished (iLoop would be 6, which is > 5)', '');
+          updateVariable('iLoop', '6', '');
+          break;
+
+        case 'calcAverage':
+          level1Data.rAverage = (level1Data.iTotal / 5);
+          updateVariable('rAverage', level1Data.rAverage.toFixed(2), '');
+          showCalculation(`rAverage := ${level1Data.iTotal} / 5 = ${level1Data.rAverage.toFixed(2)}`, '');
+          break;
+
+        case 'showTotal':
+          showCalculation(`ShowMessage('Total: ' + IntToStr(${level1Data.iTotal}))`, '');
+          break;
+
+        case 'showAverage':
+          showCalculation(`ShowMessage('Average: ' + FloatToStr(${level1Data.rAverage.toFixed(2)}))`, '');
+          break;
+      }
+
+      updateStatus(`Step ${level1Data.stepIndex + 1}/${level1Data.animationSteps.length}: ${step.description}`, '');
+      level1Data.stepIndex++;
+      return true;
+    }
+
+    function runAnimationLevel1() {
+      if (level1Data.isRunning) return;
+      level1Data.isRunning = true;
+
+      const runNext = () => {
+        if (!level1Data.isRunning) return;
+        if (executeStepLevel1()) {
+          level1Data.animationTimeout = setTimeout(runNext, 1500);
+        }
+      };
+
+      runNext();
+    }
+
+    function stepAnimationLevel1() {
+      if (level1Data.isRunning) {
+        level1Data.isRunning = false;
+        if (level1Data.animationTimeout) clearTimeout(level1Data.animationTimeout);
+      }
+      executeStepLevel1();
+    }
+
+    function resetLevel1() {
+      level1Data.isRunning = false;
+      if (level1Data.animationTimeout) clearTimeout(level1Data.animationTimeout);
+      level1Data.stepIndex = 0;
+      level1Data.iLoop = 0;
+      level1Data.iTotal = 0;
+      level1Data.rAverage = 0;
+      
+      clearHighlights('code-container');
+      clearArrayHighlights('num');
+      clearArrayHighlights('name');
+      updateVariable('iLoop', '-', '');
+      updateVariable('iTotal', '-', '');
+      updateVariable('rAverage', '-', '');
+      document.getElementById('calculation-display').classList.add('hidden');
+      updateStatus('Click "Start Animation" to begin or "Step" to go line by line', '');
+    }
+
+    // ========== LEVEL 2 FUNCTIONS ==========
+    function executeStepLevel2() {
+      if (level2Data.stepIndex >= level2Data.animationSteps.length) {
+        level2Data.isRunning = false;
+        updateStatus(`✅ Animation complete! ${level2Data.sOldestPerson} is oldest at ${level2Data.iMaxAge} years`, 'l2-');
+        return false;
+      }
+
+      const step = level2Data.animationSteps[level2Data.stepIndex];
+      highlightLine(step.line, 'l2-line-');
+
+      switch (step.action) {
+        case 'initMax':
+          level2Data.iMaxAge = level2Data.arrAges[0];
+          updateVariable('iMaxAge', level2Data.iMaxAge, 'l2-');
+          showCalculation(`iMaxAge := arrAges[1] = ${level2Data.iMaxAge}`, 'l2-');
+          break;
+
+        case 'initName':
+          level2Data.sOldestPerson = level2Data.arrNames[0];
+          updateVariable('sOldestPerson', `'${level2Data.sOldestPerson}'`, 'l2-');
+          showCalculation(`sOldestPerson := arrNames[1] = '${level2Data.sOldestPerson}'`, 'l2-');
+          break;
+
+        case 'startLoop':
+        case 'nextLoop':
+          level2Data.iLoop = step.loopValue;
+          updateVariable('iLoop', level2Data.iLoop, 'l2-');
+          highlightArrayCell(level2Data.iLoop, 'age');
+          showCalculation(`iLoop := ${level2Data.iLoop} (checking: ${level2Data.iLoop} <= 5 ✓)`, 'l2-');
+          break;
+
+        case 'compare':
+          const currentAge = level2Data.arrAges[step.loopValue - 1];
+          const comparison = currentAge > level2Data.iMaxAge ? 'YES' : 'NO';
+          highlightArrayCell(step.loopValue, 'age');
+          showCalculation(`Compare: ${currentAge} > ${level2Data.iMaxAge}? ${comparison}`, 'l2-');
+          break;
+
+        case 'updateMax':
+          level2Data.iMaxAge = level2Data.arrAges[step.loopValue - 1];
+          updateVariable('iMaxAge', level2Data.iMaxAge, 'l2-');
+          showCalculation(`iMaxAge := ${level2Data.iMaxAge}`, 'l2-');
+          break;
+
+        case 'updateName':
+          level2Data.sOldestPerson = level2Data.arrNames[step.loopValue - 1];
+          updateVariable('sOldestPerson', `'${level2Data.sOldestPerson}'`, 'l2-');
+          highlightArrayCell(step.loopValue, 'pname');
+          showCalculation(`sOldestPerson := '${level2Data.sOldestPerson}'`, 'l2-');
+          break;
+
+        case 'endLoop':
+          showCalculation('Loop finished', 'l2-');
+          break;
+
+        case 'showResult':
+          showCalculation(`RESULT (outside loop): ${level2Data.sOldestPerson} is oldest at ${level2Data.iMaxAge} years`, 'l2-');
+          break;
+      }
+
+      updateStatus(`Step ${level2Data.stepIndex + 1}/${level2Data.animationSteps.length}: ${step.description}`, 'l2-');
+      level2Data.stepIndex++;
+      return true;
+    }
+
+    function runAnimationLevel2() {
+      if (level2Data.isRunning) return;
+      level2Data.isRunning = true;
+
+      const runNext = () => {
+        if (!level2Data.isRunning) return;
+        if (executeStepLevel2()) {
+          level2Data.animationTimeout = setTimeout(runNext, 1500);
+        }
+      };
+
+      runNext();
+    }
+
+    function stepAnimationLevel2() {
+      if (level2Data.isRunning) {
+        level2Data.isRunning = false;
+        if (level2Data.animationTimeout) clearTimeout(level2Data.animationTimeout);
+      }
+      executeStepLevel2();
+    }
+
+    function resetLevel2() {
+      level2Data.isRunning = false;
+      if (level2Data.animationTimeout) clearTimeout(level2Data.animationTimeout);
+      level2Data.stepIndex = 0;
+      level2Data.iLoop = 0;
+      level2Data.iMaxAge = 0;
+      level2Data.sOldestPerson = '';
+      
+      clearHighlights('code-container-l2');
+      clearArrayHighlights('age');
+      clearArrayHighlights('pname');
+      updateVariable('iLoop', '-', 'l2-');
+      updateVariable('iMaxAge', '-', 'l2-');
+      updateVariable('sOldestPerson', '-', 'l2-');
+      document.getElementById('l2-calculation-display').classList.add('hidden');
+      updateStatus('Click "Start Animation" to begin or "Step" to go line by line', 'l2-');
+    }
+
+    // ========== LEVEL 3 FUNCTIONS ==========
+    function executeStepLevel3() {
+      if (level3Data.stepIndex >= level3Data.animationSteps.length) {
+        level3Data.isRunning = false;
+        updateStatus(`✅ Animation complete! ${level3Data.sYoungestPerson} is youngest at ${level3Data.iMinAge} years`, 'l3-');
+        return false;
+      }
+
+      const step = level3Data.animationSteps[level3Data.stepIndex];
+      highlightLine(step.line, 'l3-line-');
+
+      switch (step.action) {
+        case 'initMin':
+          level3Data.iMinAge = level3Data.arrAges[0];
+          updateVariable('iMinAge', level3Data.iMinAge, 'l3-');
+          showCalculation(`iMinAge := arrAges[1] = ${level3Data.iMinAge}`, 'l3-');
+          break;
+
+        case 'initName':
+          level3Data.sYoungestPerson = level3Data.arrNames[0];
+          updateVariable('sYoungestPerson', `'${level3Data.sYoungestPerson}'`, 'l3-');
+          showCalculation(`sYoungestPerson := arrNames[1] = '${level3Data.sYoungestPerson}'`, 'l3-');
+          break;
+
+        case 'startLoop':
+        case 'nextLoop':
+          level3Data.iLoop = step.loopValue;
+          updateVariable('iLoop', level3Data.iLoop, 'l3-');
+          highlightArrayCell(level3Data.iLoop, 'age-l3');
+          showCalculation(`iLoop := ${level3Data.iLoop} (checking: ${level3Data.iLoop} <= 5 ✓)`, 'l3-');
+          break;
+
+        case 'compare':
+          const currentAge = level3Data.arrAges[step.loopValue - 1];
+          const comparison = currentAge < level3Data.iMinAge ? 'YES' : 'NO';
+          highlightArrayCell(step.loopValue, 'age-l3');
+          showCalculation(`Compare: ${currentAge} < ${level3Data.iMinAge}? ${comparison}`, 'l3-');
+          break;
+
+        case 'endLoop':
+          showCalculation('Loop finished', 'l3-');
+          break;
+
+        case 'showResult':
+          showCalculation(`RESULT (outside loop): ${level3Data.sYoungestPerson} is youngest at ${level3Data.iMinAge} years`, 'l3-');
+          break;
+      }
+
+      updateStatus(`Step ${level3Data.stepIndex + 1}/${level3Data.animationSteps.length}: ${step.description}`, 'l3-');
+      level3Data.stepIndex++;
+      return true;
+    }
+
+    function runAnimationLevel3() {
+      if (level3Data.isRunning) return;
+      level3Data.isRunning = true;
+
+      const runNext = () => {
+        if (!level3Data.isRunning) return;
+        if (executeStepLevel3()) {
+          level3Data.animationTimeout = setTimeout(runNext, 1500);
+        }
+      };
+
+      runNext();
+    }
+
+    function stepAnimationLevel3() {
+      if (level3Data.isRunning) {
+        level3Data.isRunning = false;
+        if (level3Data.animationTimeout) clearTimeout(level3Data.animationTimeout);
+      }
+      executeStepLevel3();
+    }
+
+    function resetLevel3() {
+      level3Data.isRunning = false;
+      if (level3Data.animationTimeout) clearTimeout(level3Data.animationTimeout);
+      level3Data.stepIndex = 0;
+      level3Data.iLoop = 0;
+      level3Data.iMinAge = 0;
+      level3Data.sYoungestPerson = '';
+      
+      clearHighlights('code-container-l3');
+      clearArrayHighlights('age-l3');
+      clearArrayHighlights('pname-l3');
+      updateVariable('iLoop', '-', 'l3-');
+      updateVariable('iMinAge', '-', 'l3-');
+      updateVariable('sYoungestPerson', '-', 'l3-');
+      document.getElementById('l3-calculation-display').classList.add('hidden');
+      updateStatus('Click "Start Animation" to begin or "Step" to go line by line', 'l3-');
+    }
+
+    // ========== LEVEL 4 FUNCTIONS ==========
+    function executeStepLevel4() {
+      if (level4Data.stepIndex >= level4Data.animationSteps.length) {
+        level4Data.isRunning = false;
+        updateStatus(`✅ Animation complete! ${level4Data.iCount} people are younger than ${level4Data.iThreshold}`, 'l4-');
+        return false;
+      }
+
+      const step = level4Data.animationSteps[level4Data.stepIndex];
+      highlightLine(step.line, 'l4-line-');
+
+      switch (step.action) {
+        case 'initCount':
+          level4Data.iCount = 0;
+          updateVariable('iCount', level4Data.iCount, 'l4-');
+          showCalculation('iCount := 0', 'l4-');
+          break;
+
+        case 'initThreshold':
+          updateVariable('iThreshold', level4Data.iThreshold, 'l4-');
+          showCalculation(`iThreshold := ${level4Data.iThreshold}`, 'l4-');
+          break;
+
+        case 'startLoop':
+        case 'nextLoop':
+          level4Data.iLoop = step.loopValue;
+          updateVariable('iLoop', level4Data.iLoop, 'l4-');
+          highlightArrayCell(level4Data.iLoop, 'age-l4');
+          showCalculation(`iLoop := ${level4Data.iLoop} (checking: ${level4Data.iLoop} <= 5 ✓)`, 'l4-');
+          break;
+
+        case 'checkCondition':
+          const currentAge = level4Data.arrAges[step.loopValue - 1];
+          const isYounger = currentAge < level4Data.iThreshold ? 'YES' : 'NO';
+          highlightArrayCell(step.loopValue, 'age-l4');
+          showCalculation(`Check: ${currentAge} < ${level4Data.iThreshold}? ${isYounger}`, 'l4-');
+          break;
+
+        case 'incrementCount':
+          level4Data.iCount++;
+          updateVariable('iCount', level4Data.iCount, 'l4-');
+          showCalculation(`iCount := iCount + 1 = ${level4Data.iCount}`, 'l4-');
+          break;
+
+        case 'endLoop':
+          showCalculation('Loop finished', 'l4-');
+          break;
+
+        case 'showResult':
+          showCalculation(`RESULT (outside loop): ${level4Data.iCount} people are younger than ${level4Data.iThreshold}`, 'l4-');
+          break;
+      }
+
+      updateStatus(`Step ${level4Data.stepIndex + 1}/${level4Data.animationSteps.length}: ${step.description}`, 'l4-');
+      level4Data.stepIndex++;
+      return true;
+    }
+
+    function runAnimationLevel4() {
+      if (level4Data.isRunning) return;
+      level4Data.isRunning = true;
+
+      const runNext = () => {
+        if (!level4Data.isRunning) return;
+        if (executeStepLevel4()) {
+          level4Data.animationTimeout = setTimeout(runNext, 1500);
+        }
+      };
+
+      runNext();
+    }
+
+    function stepAnimationLevel4() {
+      if (level4Data.isRunning) {
+        level4Data.isRunning = false;
+        if (level4Data.animationTimeout) clearTimeout(level4Data.animationTimeout);
+      }
+      executeStepLevel4();
+    }
+
+    function resetLevel4() {
+      level4Data.isRunning = false;
+      if (level4Data.animationTimeout) clearTimeout(level4Data.animationTimeout);
+      level4Data.stepIndex = 0;
+      level4Data.iLoop = 0;
+      level4Data.iCount = 0;
+      level4Data.iThreshold = 40;
+      
+      clearHighlights('code-container-l4');
+      clearArrayHighlights('age-l4');
+      clearArrayHighlights('pname-l4');
+      updateVariable('iLoop', '-', 'l4-');
+      updateVariable('iCount', '-', 'l4-');
+      updateVariable('iThreshold', '-', 'l4-');
+      document.getElementById('l4-calculation-display').classList.add('hidden');
+      updateStatus('Click "Start Animation" to begin or "Step" to go line by line', 'l4-');
+    }
+
+    // ========== NAVIGATION ==========
+    function showLevel(levelNum) {
+      const level1El = document.getElementById('level-1');
+      const level2El = document.getElementById('level-2');
+      const level3El = document.getElementById('level-3');
+      const level4El = document.getElementById('level-4');
+      
+      // Reset all levels
+      resetLevel1();
+      resetLevel2();
+      resetLevel3();
+      resetLevel4();
+      
+      // Hide all
+      level1El.classList.add('hidden');
+      level2El.classList.add('hidden');
+      level3El.classList.add('hidden');
+      level4El.classList.add('hidden');
+      
+      // Update nav buttons
+      document.getElementById('nav-level-1').classList.remove('bg-amber-600');
+      document.getElementById('nav-level-1').classList.add('bg-slate-600');
+      document.getElementById('nav-level-2').classList.remove('bg-amber-600');
+      document.getElementById('nav-level-2').classList.add('bg-slate-600');
+      document.getElementById('nav-level-3').classList.remove('bg-amber-600');
+      document.getElementById('nav-level-3').classList.add('bg-slate-600');
+      document.getElementById('nav-level-4').classList.remove('bg-amber-600');
+      document.getElementById('nav-level-4').classList.add('bg-slate-600');
+      
+      // Show selected level
+      if (levelNum === 1) {
+        level1El.classList.remove('hidden');
+        document.getElementById('nav-level-1').classList.add('bg-amber-600');
+        document.getElementById('nav-level-1').classList.remove('bg-slate-600');
+        document.getElementById('level-label').textContent = 'Level 1: Totalling & Average';
+        document.getElementById('level-label').className = 'text-amber-400 font-display text-lg font-medium';
+      } else if (levelNum === 2) {
+        level2El.classList.remove('hidden');
+        document.getElementById('nav-level-2').classList.add('bg-amber-600');
+        document.getElementById('nav-level-2').classList.remove('bg-slate-600');
+        document.getElementById('level-label').textContent = 'Level 2: Finding Maximum Value';
+        document.getElementById('level-label').className = 'text-purple-400 font-display text-lg font-medium';
+      } else if (levelNum === 3) {
+        level3El.classList.remove('hidden');
+        document.getElementById('nav-level-3').classList.add('bg-amber-600');
+        document.getElementById('nav-level-3').classList.remove('bg-slate-600');
+        document.getElementById('level-label').textContent = 'Level 3: Finding Minimum Value';
+        document.getElementById('level-label').className = 'text-rose-400 font-display text-lg font-medium';
+      } else if (levelNum === 4) {
+        level4El.classList.remove('hidden');
+        document.getElementById('nav-level-4').classList.add('bg-amber-600');
+        document.getElementById('nav-level-4').classList.remove('bg-slate-600');
+        document.getElementById('level-label').textContent = 'Level 4: Counting with a Condition';
+        document.getElementById('level-label').className = 'text-cyan-400 font-display text-lg font-medium';
+      }
+    }
+
+    // ========== EVENT LISTENERS ==========
+    // Navigation
+    document.getElementById('nav-level-1').addEventListener('click', () => showLevel(1));
+    document.getElementById('nav-level-2').addEventListener('click', () => showLevel(2));
+    document.getElementById('nav-level-3').addEventListener('click', () => showLevel(3));
+    document.getElementById('nav-level-4').addEventListener('click', () => showLevel(4));
+
+    // Level 1
+    document.getElementById('btn-start').addEventListener('click', runAnimationLevel1);
+    document.getElementById('btn-step').addEventListener('click', stepAnimationLevel1);
+    document.getElementById('btn-reset').addEventListener('click', resetLevel1);
+
+    // Level 2
+    document.getElementById('btn-start-l2').addEventListener('click', runAnimationLevel2);
+    document.getElementById('btn-step-l2').addEventListener('click', stepAnimationLevel2);
+    document.getElementById('btn-reset-l2').addEventListener('click', resetLevel2);
+
+    // Level 3
+    document.getElementById('btn-start-l3').addEventListener('click', runAnimationLevel3);
+    document.getElementById('btn-step-l3').addEventListener('click', stepAnimationLevel3);
+    document.getElementById('btn-reset-l3').addEventListener('click', resetLevel3);
+
+    // Level 4
+    document.getElementById('btn-start-l4').addEventListener('click', runAnimationLevel4);
+    document.getElementById('btn-step-l4').addEventListener('click', stepAnimationLevel4);
+    document.getElementById('btn-reset-l4').addEventListener('click', resetLevel4);
+
+    // ========== SDK INITIALIZATION ==========
+    function applyConfig(config) {
+      document.getElementById('main-title').textContent = config.main_title || defaultConfig.main_title;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          applyConfig(config);
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['main_title', config.main_title || defaultConfig.main_title],
+          ['level_label', config.level_label || defaultConfig.level_label]
+        ])
+      });
+    }
+
+    applyConfig(defaultConfig);
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ce4da18802473a8',t:'MTc3MTE1ODk5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
