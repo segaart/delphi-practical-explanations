@@ -1,0 +1,2434 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Array Learning Animation</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Space Grotesk', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 5px rgba(34, 211, 238, 0.3); }
+      50% { box-shadow: 0 0 20px rgba(34, 211, 238, 0.6); }
+    }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes bfoundPulse {
+      0%, 100% { 
+        box-shadow: 0 0 10px rgba(34, 211, 238, 0.3), inset 0 0 10px rgba(34, 211, 238, 0.1);
+        transform: scale(1);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(34, 211, 238, 0.8), inset 0 0 20px rgba(34, 211, 238, 0.3);
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes notFoundFlip {
+      0% { 
+        transform: rotateY(0deg) scale(1);
+      }
+      50% { 
+        transform: rotateY(90deg) scale(1.1);
+      }
+      100% { 
+        transform: rotateY(0deg) scale(1);
+      }
+    }
+
+    @keyframes messagePopUp {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .bfound-true {
+      animation: notFoundFlip 1.5s ease-in-out forwards;
+      color: #10b981 !important;
+      border-color: #10b981 !important;
+      background-color: rgba(16, 185, 129, 0.2) !important;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .bfound-false {
+      animation: notFoundFlip 1s ease-in-out forwards;
+      color: #ef4444 !important;
+      border-color: #ef4444 !important;
+      background-color: rgba(239, 68, 68, 0.2) !important;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8), inset 0 0 20px rgba(239, 68, 68, 0.3) !important;
+    }
+    
+    .array-block {
+      transition: all 0.3s ease;
+      padding: 0.5rem 0.75rem;
+      gap: 0.5rem;
+    }
+    
+    .array-block:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px rgba(34, 211, 238, 0.4);
+    }
+    
+    .value-fill {
+      animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+
+    .richedit {
+      background-color: #f5f5f5;
+      color: #333;
+      border: 1px solid #ccc;
+      font-family: 'Courier New', monospace;
+      padding: 8px;
+      line-height: 1.6;
+      overflow-y: auto;
+    }
+
+    .loop-line {
+      opacity: 0;
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .code-line-highlight {
+      background-color: rgba(236, 72, 153, 0.5) !important;
+      border-left: 4px solid rgba(236, 72, 153, 1);
+      box-shadow: inset 0 0 15px rgba(236, 72, 153, 0.3);
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .search-block-checking {
+      box-shadow: 0 0 20px rgba(255, 193, 7, 0.6) !important;
+      transform: scale(1.05) !important;
+    }
+
+    .search-block-found {
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.8) !important;
+      background-color: rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .quiz-option {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .quiz-option:hover {
+      transform: translateX(8px);
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+
+    .quiz-option.selected {
+      background-color: rgba(99, 102, 241, 0.2);
+      border-left-color: #6366f1;
+    }
+
+    .progress-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .progress-dot.completed {
+      background-color: #10b981;
+    }
+
+    .progress-dot.active {
+      background-color: #a78bfa;
+      width: 16px;
+      height: 16px;
+    }
+
+    .progress-dot.pending {
+      background-color: #64748b;
+    }
+
+    .code-line {
+      transition: all 0.3s ease;
+      padding: 4px 8px;
+      margin: 2px 0;
+      border-radius: 4px;
+    }
+
+    .parallel-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .parallel-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .parallel-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    .parallel-block {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.375rem;
+      border: 1.5px solid;
+      transition: all 0.3s ease;
+    }
+
+    .parallel-block:hover {
+      transform: scale(1.05);
+    }
+
+    .parallel-index {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 0.25rem;
+      font-weight: bold;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .parallel-value {
+      flex: 1;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .parallel-bracket {
+      color: #64748b;
+      font-size: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .message-popup {
+      animation: messagePopUp 0.6s ease-out forwards;
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.95), rgba(249, 115, 22, 0.95));
+      border: 2px solid rgba(251, 146, 60, 1);
+      box-shadow: 0 10px 40px rgba(251, 146, 60, 0.5);
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+      padding: 2rem;
+      border-radius: 1rem;
+      text-align: center;
+      min-width: 300px;
+    }
+
+    .message-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      animation: fadeInUp 0.3s ease-out forwards;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="app-wrapper" class="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-auto">
+   <div class="min-h-full p-6 md:p-8"><!-- Header -->
+    <header class="text-center mb-8">
+     <h1 id="main-title" class="text-3xl md:text-4xl font-bold text-white mb-2">Learn Arrays Step by Step</h1>
+     <p class="text-cyan-400 text-lg">Interactive Programming Animation</p>
+    </header><!-- Level Indicator -->
+    <div class="flex justify-center gap-3 mb-8 flex-wrap"><button id="level-1-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-cyan-500 text-slate-900" onclick="goToLevel(1)">Level 1</button> <button id="level-2-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(2)">Level 2</button> <button id="level-3-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(3)">Level 3</button> <button id="level-4-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(4)">Level 4</button> <button id="level-5-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(5)">Level 5</button> <button id="level-6-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(6)">Quiz</button> <button id="level-7-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(7)">Level 7</button> <button id="level-8-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(8)">Level 8</button> <button id="level-9-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(9)">Level 9</button> <button id="level-10-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(10)">Level 10</button> <button id="level-11-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(11)">Level 11</button> <button id="level-12-btn" class="level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" onclick="goToLevel(12)">Quiz 2</button>
+    </div><!-- Animation Container -->
+    <main class="max-w-6xl mx-auto"><!-- Level 1: Declaration -->
+     <section id="level-1" class="level-section">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-cyan-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-cyan-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 1</span>
+        <h2 class="text-xl font-semibold text-white">Array Declaration</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-cyan-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-cyan-500">
+        <p class="text-cyan-100 font-medium">📝 This declares an array named <span class="mono text-cyan-300" id="explanation-array-name">arrNames</span> with <span class="text-green-400 font-bold">5 elements</span>, indexed from <span class="text-green-400 font-bold">1 to 5</span> storing <span class="text-yellow-400 font-bold">strings</span></p>
+       </div><!-- Code and Animation Side by Side -->
+       <div class="grid grid-cols-2 gap-6 mb-6"><!-- Declaration Code (Left) -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="declaration-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">var</span>
+          </div>
+          <div class="code-line ml-4" id="decl-line-1"><span id="array-name-display" class="text-cyan-300">arrNames</span> <span class="text-white"> : </span> <span class="text-yellow-400">array</span> <span class="text-white">[</span> <span class="text-green-400">1</span> <span class="text-white">..</span> <span class="text-green-400">5</span> <span class="text-white">] </span> <span class="text-purple-400">of</span> <span class="text-yellow-400"> string</span> <span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Array Visualization (Right) -->
+        <div>
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Memory Allocation:</p>
+         <div id="array-blocks" class="flex flex-col gap-2"><!-- Blocks will be animated in -->
+         </div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-1" onclick="playLevel1()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30"> ▶ Play Animation </button> <button id="reset-level-1" onclick="resetLevel1()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 2: Assignment -->
+     <section id="level-2" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-emerald-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-emerald-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 2</span>
+        <h2 class="text-xl font-semibold text-white">Assigning Values</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-emerald-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-emerald-500">
+        <p class="text-emerald-100 font-medium">📝 Each element is accessed using <span class="mono text-emerald-300">arrayName[index]</span> and assigned a string value using <span class="mono text-emerald-300">:=</span></p>
+       </div><!-- Code and Animation Side by Side -->
+       <div class="grid grid-cols-2 gap-6 mb-6"><!-- Assignment Code (Left) -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="assignment-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="assignment-lines" class="ml-4"><!-- Assignment lines will appear here -->
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Array with Values (Right) -->
+        <div>
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Watch values fill the array:</p>
+         <div id="array-blocks-2" class="flex flex-col gap-2"><!-- Pre-populated blocks -->
+         </div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-2" onclick="playLevel2()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-emerald-500/30"> ▶ Play Animation </button> <button id="reset-level-2" onclick="resetLevel2()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 3: Accessing -->
+     <section id="level-3" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-amber-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-amber-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 3</span>
+        <h2 class="text-xl font-semibold text-white">Accessing Array Values</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-amber-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-amber-500">
+        <p class="text-amber-100 font-medium">📝 Click on any array block to see how to access that element's value!</p>
+       </div><!-- Code and Animation Side by Side -->
+       <div class="grid grid-cols-2 gap-6 mb-6"><!-- Access Code (Left) -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="access-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="access-line" class="code-line ml-4"><span class="text-slate-500">{ Click an index to read its value }</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Interactive Array and Output (Right) -->
+        <div>
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Click to access:</p>
+         <div id="array-blocks-3" class="flex flex-col gap-2 mb-4"><!-- Interactive blocks -->
+         </div><!-- Output Display -->
+         <div id="output-display" class="bg-slate-900 rounded-xl p-4 border border-slate-700 hidden">
+          <p class="text-slate-400 text-sm mb-2">Message Box Shows:</p>
+          <div id="output-value" class="mono text-2xl text-amber-400 font-bold"></div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </section><!-- Level 4: Loop -->
+     <section id="level-4" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-pink-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-pink-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 4</span>
+        <h2 class="text-xl font-semibold text-white">Display Array Values Using a Loop</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-pink-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-pink-500">
+        <p class="text-pink-100 font-medium">📝 <span class="mono text-pink-300">iLoop</span> is the index variable. It automatically increments from 1 to 5. The highlighted line shows which statement is executing on each iteration!</p>
+       </div><!-- Code and Output Side by Side -->
+       <div class="flex gap-6 mb-6"><!-- Loop Code (Left) -->
+        <div class="flex-1 bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="loop-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-4" id="loop-for-line"><span class="text-purple-400">for</span> <span class="text-cyan-300"> iLoop</span> <span class="text-white"> := </span> <span class="text-green-400">1</span> <span class="text-white"> </span> <span class="text-purple-400">to</span> <span class="text-white"> </span> <span class="text-green-400">5</span> <span class="text-white"> </span> <span class="text-purple-400">do</span>
+          </div>
+          <div class="code-line ml-4"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="loop-execute-line" class="code-line ml-8"><span class="text-orange-400">redOutput</span> <span class="text-white">.lines.add(</span> <span class="text-cyan-300">arrNames</span> <span class="text-white">[</span> <span class="text-cyan-300">iLoop</span> <span class="text-white">]);</span> <span class="text-slate-500 ml-3">//iLoop = <span id="loop-var-display" class="text-pink-400 font-bold">—</span></span>
+          </div>
+          <div class="code-line ml-4"><span class="text-purple-400">end</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- RichEdit Output (Right) -->
+        <div class="w-56">
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">RichEdit Output:</p>
+         <div class="richedit w-full h-56 rounded-lg border-2 border-pink-500/50" id="richedit-output"></div>
+        </div>
+       </div><!-- Loop Variables Tracker -->
+       <div class="mb-6">
+        <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Loop Iterations:</p>
+        <div class="grid grid-cols-5 gap-2">
+         <div id="loop-iteration-1" class="bg-slate-900 rounded-lg p-3 border border-slate-700 text-center">
+          <div class="text-slate-500 text-xs uppercase mb-2 font-semibold">
+           iLoop = 1
+          </div>
+          <div class="mono text-lg text-pink-400 font-bold value-display">
+           —
+          </div>
+          <div class="text-slate-500 text-xs mt-2">
+           arrNames[<span class="text-pink-300 font-bold">1</span>]
+          </div>
+         </div>
+         <div id="loop-iteration-2" class="bg-slate-900 rounded-lg p-3 border border-slate-700 text-center">
+          <div class="text-slate-500 text-xs uppercase mb-2 font-semibold">
+           iLoop = 2
+          </div>
+          <div class="mono text-lg text-pink-400 font-bold value-display">
+           —
+          </div>
+          <div class="text-slate-500 text-xs mt-2">
+           arrNames[<span class="text-pink-300 font-bold">2</span>]
+          </div>
+         </div>
+         <div id="loop-iteration-3" class="bg-slate-900 rounded-lg p-3 border border-slate-700 text-center">
+          <div class="text-slate-500 text-xs uppercase mb-2 font-semibold">
+           iLoop = 3
+          </div>
+          <div class="mono text-lg text-pink-400 font-bold value-display">
+           —
+          </div>
+          <div class="text-slate-500 text-xs mt-2">
+           arrNames[<span class="text-pink-300 font-bold">3</span>]
+          </div>
+         </div>
+         <div id="loop-iteration-4" class="bg-slate-900 rounded-lg p-3 border border-slate-700 text-center">
+          <div class="text-slate-500 text-xs uppercase mb-2 font-semibold">
+           iLoop = 4
+          </div>
+          <div class="mono text-lg text-pink-400 font-bold value-display">
+           —
+          </div>
+          <div class="text-slate-500 text-xs mt-2">
+           arrNames[<span class="text-pink-300 font-bold">4</span>]
+          </div>
+         </div>
+         <div id="loop-iteration-5" class="bg-slate-900 rounded-lg p-3 border border-slate-700 text-center">
+          <div class="text-slate-500 text-xs uppercase mb-2 font-semibold">
+           iLoop = 5
+          </div>
+          <div class="mono text-lg text-pink-400 font-bold value-display">
+           —
+          </div>
+          <div class="text-slate-500 text-xs mt-2">
+           arrNames[<span class="text-pink-300 font-bold">5</span>]
+          </div>
+         </div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-4" onclick="playLevel4()" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-pink-500/30"> ▶ Run Loop </button> <button id="reset-level-4" onclick="resetLevel4()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 5: Linear Search -->
+     <section id="level-5" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-indigo-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-indigo-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 5</span>
+        <h2 class="text-xl font-semibold text-white">Linear Search</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-indigo-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-indigo-500">
+        <p class="text-indigo-100 font-medium">📝 Search for a name in the array! The algorithm uses <span class="mono text-indigo-300">iLoop</span> to check each element and <span class="mono text-indigo-300">bFound</span> to track if the name is found.</p>
+       </div><!-- Search Input -->
+       <div class="mb-6 flex gap-4">
+        <div class="flex-1"><label for="search-input" class="block text-slate-300 text-sm font-semibold mb-2">Enter a name to find:</label> <input type="text" id="search-input" placeholder="e.g., Jane" class="w-full bg-slate-900 border-2 border-indigo-500/50 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 mono">
+         <div id="search-error" class="text-red-400 text-sm mt-2 hidden">
+          ⚠️ Please enter a name to search!
+         </div>
+        </div>
+        <div class="flex items-end"><button id="search-button" onclick="startSearch()" class="bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-400 hover:to-violet-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-indigo-500/30"> 🔍 Search </button>
+        </div>
+       </div><!-- Code and Animation - Three Column Layout -->
+       <div class="grid gap-4 mb-6" style="grid-template-columns: 0.8fr 2fr 1.3fr;"><!-- Left Column: Variable Tracking and Search Progress -->
+        <div class="space-y-3"><!-- Variable Tracking -->
+         <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+          <p class="text-slate-400 mb-1.5 text-xs uppercase tracking-wide font-semibold">Variable:</p>
+          <div class="text-slate-300 text-xs mono mb-2"><span class="text-purple-400">var</span> <span class="text-white"> bFound</span>
+          </div>
+          <div id="bfound-status" class="mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center">
+           False
+          </div>
+         </div><!-- Search Progress -->
+         <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+          <p class="text-slate-400 mb-1.5 text-xs uppercase tracking-wide font-semibold">Progress:</p>
+          <div id="search-status" class="text-indigo-400 text-center font-semibold text-xs mb-1.5">
+           Ready...
+          </div>
+          <div id="search-log" class="mono text-xs text-slate-300 h-44 overflow-y-auto bg-slate-800 rounded p-1.5 space-y-0.5"></div>
+         </div>
+        </div><!-- Middle Column: Search Code -->
+        <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+         <div class="flex items-center gap-2 mb-2">
+          <div class="w-2 h-2 rounded-full bg-red-500"></div>
+          <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+          <div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-slate-500 text-xs ml-1">code.pas</span>
+         </div>
+         <div id="search-code" class="mono text-xs overflow-y-auto h-80">
+          <div class="code-line"><span class="text-purple-400">var</span>
+          </div>
+          <div class="code-line ml-3" id="search-var-1"><span class="text-cyan-300">iLoop</span> <span class="text-white"> : </span> <span class="text-yellow-400">Integer</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="search-var-2"><span class="text-cyan-300">bFound</span> <span class="text-white"> : </span> <span class="text-yellow-400">Boolean</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-3" id="search-init-line"><span class="text-cyan-300">bFound</span> <span class="text-white"> := </span> <span class="text-yellow-400">False</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="search-for-line"><span class="text-purple-400">for</span> <span class="text-cyan-300"> iLoop</span> <span class="text-white"> := </span> <span class="text-green-400">1</span> <span class="text-white"> </span> <span class="text-purple-400">to</span> <span class="text-white"> </span> <span class="text-green-400">5</span> <span class="text-white"> </span> <span class="text-purple-400">do</span>
+          </div>
+          <div class="code-line ml-3"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="search-if-line" class="code-line ml-6"><span class="text-purple-400">if</span> <span class="text-white"> </span> <span class="text-cyan-300">arrNames</span> <span class="text-white">[</span> <span class="text-cyan-300">iLoop</span> <span class="text-white">] = </span> <span id="search-term-display" class="text-orange-400">'...'</span> <span class="text-white"> </span> <span class="text-purple-400">then</span>
+          </div>
+          <div class="code-line ml-9" id="search-assign-line"><span class="text-cyan-300">bFound</span> <span class="text-white"> := </span> <span class="text-yellow-400">True</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3"><span class="text-purple-400">end</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="result-if-line"><span class="text-purple-400">if</span> <span class="text-cyan-300"> bFound</span> <span class="text-white"> = </span> <span class="text-yellow-400">False</span> <span class="text-white"> </span> <span class="text-purple-400">then</span>
+          </div>
+          <div id="not-found-line" class="code-line ml-6"><span class="text-yellow-400">ShowMessage</span> <span class="text-white">('</span> <span class="text-green-400">Not found</span> <span class="text-white">');</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Right Column: Array and Results -->
+        <div class="space-y-3">
+         <div>
+          <p class="text-slate-400 mb-2 text-xs uppercase tracking-wide font-semibold">Array:</p>
+          <div id="search-blocks" class="flex flex-col gap-2"><!-- Search array blocks -->
+          </div>
+         </div><!-- Result Display -->
+         <div id="search-result" class="bg-slate-900 rounded-lg p-3 border-2 border-slate-700 hidden">
+          <p class="text-slate-400 text-xs mb-2 uppercase font-semibold">Result:</p>
+          <div id="result-message" class="mono text-sm font-bold"></div>
+          <div id="result-iterations" class="text-slate-400 text-xs mt-2"></div>
+         </div>
+        </div>
+       </div><!-- Buttons -->
+       <div class="text-center mt-6"><button id="reset-search" onclick="resetSearch()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset Search </button>
+       </div>
+      </div>
+     </section><!-- Level 6: Quiz -->
+     <section id="level-6" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-purple-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-purple-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">QUIZ</span>
+        <h2 class="text-xl font-semibold text-white">Master Your Array Knowledge</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-purple-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-purple-500">
+        <p class="text-purple-100 font-medium">📝 Test what you've learned across all 5 levels! Answer questions about declaration, assignment, access, loops, and searching.</p>
+       </div><!-- Quiz Status -->
+       <div class="flex items-center justify-between mb-8">
+        <div class="text-slate-300"><span id="quiz-progress" class="font-semibold text-purple-400 text-lg">Question 1 of 8</span>
+        </div>
+        <div class="flex gap-2" id="quiz-indicators"><!-- Progress dots will be added here -->
+        </div>
+       </div><!-- Quiz Container -->
+       <div id="quiz-container" class="space-y-6 min-h-96"><!-- Questions will be generated here -->
+       </div><!-- Navigation Buttons -->
+       <div class="flex justify-between items-center mt-10"><button id="prev-question" onclick="previousQuestion()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ← Previous </button> <button id="next-question" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-400 hover:to-violet-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-purple-500/30"> Next → </button> <button id="submit-quiz" onclick="submitQuiz()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-green-500/30 hidden"> ✓ Submit Quiz </button>
+       </div><!-- Results Display -->
+       <div id="quiz-results" class="hidden mt-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-8 border-2 border-purple-500/50">
+        <div class="text-center">
+         <div id="results-score" class="text-6xl font-bold mb-4"><span id="score-number" class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-400">0</span>/<span class="text-slate-300">8</span>
+         </div>
+         <h3 id="results-title" class="text-3xl font-bold text-white mb-3"></h3>
+         <div id="results-message" class="text-lg text-slate-300 mb-6"></div><button id="retry-quiz" onclick="resetQuiz()" class="bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-400 hover:to-violet-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105"> 🔄 Try Again </button>
+        </div>
+       </div>
+      </div>
+     </section><!-- Level 7: Parallel Arrays Declaration -->
+     <section id="level-7" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-rose-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-rose-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 7</span>
+        <h2 class="text-xl font-semibold text-white">Parallel Arrays Declaration</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-rose-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-rose-500">
+        <p class="text-rose-100 font-medium">📝 Parallel arrays are multiple arrays that work together. Each array stores different information about the same set of items. Same index = related data!</p>
+       </div><!-- Code and Animation -->
+       <div class="grid grid-cols-2 gap-6 mb-6"><!-- Declaration Code -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">var</span>
+          </div>
+          <div class="code-line ml-4"><span class="text-cyan-300">arrNames</span> <span class="text-white"> : </span> <span class="text-yellow-400">array</span> <span class="text-white">[</span> <span class="text-green-400">1</span> <span class="text-white">..</span> <span class="text-green-400">5</span> <span class="text-white">] </span> <span class="text-purple-400">of</span> <span class="text-yellow-400"> string</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-4"><span class="text-cyan-300">arrAges</span> <span class="text-white"> : </span> <span class="text-yellow-400">array</span> <span class="text-white">[</span> <span class="text-green-400">1</span> <span class="text-white">..</span> <span class="text-green-400">5</span> <span class="text-white">] </span> <span class="text-purple-400">of</span> <span class="text-yellow-400"> Integer</span> <span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Visual Representation -->
+        <div>
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Memory Layout:</p>
+         <div id="parallel-decl-visual" class="space-y-2"><!-- Will be populated with animation -->
+         </div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-7" onclick="playLevel7()" class="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-400 hover:to-pink-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-rose-500/30"> ▶ Play Animation </button> <button id="reset-level-7" onclick="resetLevel7()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 8: Parallel Arrays Assignment -->
+     <section id="level-8" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-sky-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-sky-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 8</span>
+        <h2 class="text-xl font-semibold text-white">Parallel Arrays Assignment</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-sky-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-sky-500">
+        <p class="text-sky-100 font-medium">📝 Values are assigned to both arrays using the same index. Notice how each index position connects related data across both arrays!</p>
+       </div><!-- Code and Animation -->
+       <div class="flex gap-6 mb-6"><!-- Code -->
+        <div class="flex-1 bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="parallel-assign-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="parallel-assign-lines" class="ml-4"><!-- Assignment lines will appear here -->
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Parallel Visualization -->
+        <div class="flex-1">
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Data Structure:</p>
+         <div id="parallel-assign-visual" class="space-y-2"><!-- Will be populated with animation -->
+         </div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-8" onclick="playLevel8()" class="bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-sky-500/30"> ▶ Play Animation </button> <button id="reset-level-8" onclick="resetLevel8()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 9: Parallel Arrays Access -->
+     <section id="level-9" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-teal-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-teal-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 9</span>
+        <h2 class="text-xl font-semibold text-white">Accessing Parallel Arrays</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-teal-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-teal-500">
+        <p class="text-teal-100 font-medium">📝 Click on an index to see how both arrays are accessed together at that same index position!</p>
+       </div><!-- Code and Visualization -->
+       <div class="grid grid-cols-2 gap-6 mb-6"><!-- Code -->
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="parallel-access-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="parallel-access-line" class="code-line ml-4"><span class="text-slate-500">{ Click an index to read data }</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Interactive Parallel Arrays -->
+        <div>
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">Click an Index:</p>
+         <div id="parallel-access-visual" class="space-y-2 mb-4"><!-- Interactive parallel arrays -->
+         </div><!-- Output -->
+         <div id="parallel-output" class="bg-slate-900 rounded-lg p-4 border border-slate-700 hidden">
+          <p class="text-slate-400 text-xs mb-2 uppercase font-semibold">Message Shows:</p>
+          <div id="parallel-output-text" class="mono text-lg text-teal-400 font-bold"></div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </section><!-- Level 10: Parallel Arrays Loop -->
+     <section id="level-10" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-lime-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-lime-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 10</span>
+        <h2 class="text-xl font-semibold text-white">Loop Through Parallel Arrays</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-lime-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-lime-500">
+        <p class="text-lime-100 font-medium">📝 A single loop variable indexes both arrays at the same time, displaying related data pairs!</p>
+       </div><!-- Code and Output -->
+       <div class="flex gap-6 mb-6"><!-- Loop Code -->
+        <div class="flex-1 bg-slate-900 rounded-xl p-4 border border-slate-700">
+         <div class="flex items-center gap-2 mb-3">
+          <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+          <div class="w-3 h-3 rounded-full bg-green-500"></div><span class="text-slate-500 text-sm ml-2">code.pas</span>
+         </div>
+         <div id="parallel-loop-code" class="mono text-lg">
+          <div class="code-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-4" id="parallel-for-line"><span class="text-purple-400">for</span> <span class="text-cyan-300"> iLoop</span> <span class="text-white"> := </span> <span class="text-green-400">1</span> <span class="text-white"> </span> <span class="text-purple-400">to</span> <span class="text-white"> </span> <span class="text-green-400">5</span> <span class="text-white"> </span> <span class="text-purple-400">do</span>
+          </div>
+          <div class="code-line ml-4"><span class="text-purple-400">begin</span>
+          </div>
+          <div id="parallel-loop-execute" class="code-line ml-8"><span class="text-orange-400">redOutput</span> <span class="text-white">.lines.add(</span> <span class="text-cyan-300">arrNames</span> <span class="text-white">[iLoop] + '</span> <span class="text-white"> - Age: </span> <span class="text-white">' + </span> <span class="text-yellow-400">IntToStr</span> <span class="text-white">(</span> <span class="text-cyan-300">arrAges</span> <span class="text-white">[iLoop]));</span> <span class="text-slate-500 ml-2">//iLoop = <span id="parallel-loop-var" class="text-lime-400 font-bold">—</span></span>
+          </div>
+          <div class="code-line ml-4"><span class="text-purple-400">end</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Output -->
+        <div class="w-56">
+         <p class="text-slate-400 mb-3 text-sm uppercase tracking-wide font-semibold">RichEdit Output:</p>
+         <div class="richedit w-full h-80 rounded-lg border-2 border-lime-500/50" id="parallel-richedit-output"></div>
+        </div>
+       </div><!-- Play Button -->
+       <div class="text-center mt-6"><button id="play-level-10" onclick="playLevel10()" class="bg-gradient-to-r from-lime-500 to-green-500 hover:from-lime-400 hover:to-green-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-lime-500/30"> ▶ Run Loop </button> <button id="reset-level-10" onclick="resetLevel10()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       </div>
+      </div>
+     </section><!-- Level 11: Parallel Arrays Search -->
+     <section id="level-11" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-orange-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-orange-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">LEVEL 11</span>
+        <h2 class="text-xl font-semibold text-white">Search Parallel Arrays</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-orange-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-orange-500">
+        <p class="text-orange-100 font-medium">📝 Search for a name and instantly get their associated age from the parallel array!</p>
+       </div><!-- Search Input -->
+       <div class="mb-6 flex gap-4">
+        <div class="flex-1"><label for="parallel-search-input" class="block text-slate-300 text-sm font-semibold mb-2">Find a person's age:</label> <input type="text" id="parallel-search-input" placeholder="e.g., Jane" class="w-full bg-slate-900 border-2 border-orange-500/50 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 mono">
+         <div id="parallel-search-error" class="text-red-400 text-sm mt-2 hidden">
+          ⚠️ Please enter a name!
+         </div>
+        </div>
+        <div class="flex items-end"><button id="parallel-search-button" onclick="startParallelSearch()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-orange-500/30"> 🔍 Search </button>
+        </div>
+       </div><!-- Code and Visualization -->
+       <div class="grid gap-4 mb-6" style="grid-template-columns: 0.8fr 2fr 1.3fr;"><!-- Left: Variables -->
+        <div class="space-y-3">
+         <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+          <p class="text-slate-400 mb-1.5 text-xs uppercase tracking-wide font-semibold">Found:</p>
+          <div id="parallel-bfound-status" class="mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center">
+           False
+          </div>
+         </div>
+         <div class="bg-slate-900 rounded-lg p-2 border border-slate-700">
+          <p class="text-slate-400 mb-1.5 text-xs uppercase tracking-wide font-semibold">Progress:</p>
+          <div id="parallel-search-log" class="mono text-xs text-slate-300 h-44 overflow-y-auto bg-slate-800 rounded p-1.5 space-y-0.5"></div>
+         </div>
+        </div><!-- Middle: Code -->
+        <div class="bg-slate-900 rounded-xl p-3 border border-slate-700">
+         <div class="flex items-center gap-2 mb-2">
+          <div class="w-2 h-2 rounded-full bg-red-500"></div>
+          <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+          <div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-slate-500 text-xs ml-1">code.pas</span>
+         </div>
+         <div id="parallel-search-code" class="mono text-xs overflow-y-auto h-80">
+          <div class="code-line" id="psearch-var-line"><span class="text-purple-400">var</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-iloop-line"><span class="text-cyan-300">iLoop, iAge</span> <span class="text-white"> : </span> <span class="text-yellow-400">Integer</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-bfound-line"><span class="text-cyan-300">bFound</span> <span class="text-white"> : </span> <span class="text-yellow-400">Boolean</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line" id="psearch-begin-line"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-init-line"><span class="text-cyan-300">bFound</span> <span class="text-white"> := </span> <span class="text-yellow-400">False</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-for-line"><span class="text-purple-400">for</span> <span class="text-cyan-300"> iLoop</span> <span class="text-white"> := </span> <span class="text-green-400">1</span> <span class="text-white"> </span> <span class="text-purple-400">to</span> <span class="text-white"> </span> <span class="text-green-400">5</span> <span class="text-white"> </span> <span class="text-purple-400">do</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-inner-begin"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-6" id="psearch-if-line"><span class="text-purple-400">if</span> <span class="text-white"> </span> <span class="text-cyan-300">arrNames</span> <span class="text-white">[iLoop] = </span> <span id="parallel-search-term" class="text-orange-400">'...'</span> <span class="text-white"> </span> <span class="text-purple-400">then</span>
+          </div>
+          <div class="code-line ml-6" id="psearch-then-begin"><span class="text-purple-400">begin</span>
+          </div>
+          <div class="code-line ml-9" id="psearch-assign1-line"><span class="text-cyan-300">bFound</span> <span class="text-white"> := </span> <span class="text-yellow-400">True</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-9" id="psearch-assign2-line"><span class="text-cyan-300">iAge</span> <span class="text-white"> := </span> <span class="text-cyan-300">arrAges</span> <span class="text-white">[iLoop];</span>
+          </div>
+          <div class="code-line ml-6" id="psearch-then-end"><span class="text-purple-400">end</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-inner-end"><span class="text-purple-400">end</span> <span class="text-white">;</span>
+          </div>
+          <div class="code-line ml-3" id="psearch-result-if"><span class="text-purple-400">if</span> <span class="text-cyan-300"> bFound</span> <span class="text-white"> </span> <span class="text-purple-400">then</span>
+          </div>
+          <div class="code-line ml-6" id="psearch-showmessage"><span class="text-yellow-400">ShowMessage</span> <span class="text-white">(</span> <span class="text-cyan-300">iAge</span> <span class="text-white">);</span>
+          </div>
+          <div class="code-line" id="psearch-final-end"><span class="text-purple-400">end</span><span class="text-white">;</span>
+          </div>
+         </div>
+        </div><!-- Right: Arrays and Result -->
+        <div class="space-y-3">
+         <div>
+          <p class="text-slate-400 mb-2 text-xs uppercase tracking-wide font-semibold">Parallel Arrays:</p>
+          <div id="parallel-search-visual" class="space-y-2"><!-- Parallel arrays visualization -->
+          </div>
+         </div>
+         <div id="parallel-search-result" class="bg-slate-900 rounded-lg p-3 border-2 border-slate-700 hidden">
+          <p class="text-slate-400 text-xs mb-2 uppercase font-semibold">Result:</p>
+          <div id="parallel-result-message" class="mono text-sm font-bold"></div>
+         </div>
+        </div>
+       </div><!-- Button -->
+       <div class="text-center mt-6"><button id="reset-parallel-search" onclick="resetParallelSearch()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset Search </button>
+       </div>
+      </div>
+     </section><!-- Level 12: Parallel Arrays Quiz -->
+     <section id="level-12" class="level-section hidden">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-fuchsia-500/30 mb-6">
+       <div class="flex items-center gap-3 mb-4"><span class="bg-fuchsia-500 text-slate-900 px-3 py-1 rounded-full text-sm font-bold">QUIZ 2</span>
+        <h2 class="text-xl font-semibold text-white">Master Parallel Arrays</h2>
+       </div><!-- Explanation Label -->
+       <div class="bg-gradient-to-r from-fuchsia-500/20 to-transparent rounded-lg p-4 mb-6 border-l-4 border-fuchsia-500">
+        <p class="text-fuchsia-100 font-medium">📝 Test your knowledge of parallel arrays! You've learned declaration, assignment, access, loops, and searching with parallel arrays.</p>
+       </div><!-- Quiz Status -->
+       <div class="flex items-center justify-between mb-8">
+        <div class="text-slate-300"><span id="quiz2-progress" class="font-semibold text-fuchsia-400 text-lg">Question 1 of 6</span>
+        </div>
+        <div class="flex gap-2" id="quiz2-indicators"><!-- Progress dots -->
+        </div>
+       </div><!-- Quiz Container -->
+       <div id="quiz2-container" class="space-y-6 min-h-96"><!-- Questions will be generated -->
+       </div><!-- Navigation -->
+       <div class="flex justify-between items-center mt-10"><button id="prev-question2" onclick="previousQuestion2()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ← Previous </button> <button id="next-question2" onclick="nextQuestion2()" class="bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-fuchsia-500/30"> Next → </button> <button id="submit-quiz2" onclick="submitQuiz2()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-green-500/30 hidden"> ✓ Submit Quiz </button>
+       </div><!-- Results -->
+       <div id="quiz2-results" class="hidden mt-8 bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-8 border-2 border-fuchsia-500/50">
+        <div class="text-center">
+         <div id="results2-score" class="text-6xl font-bold mb-4"><span id="score2-number" class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-pink-400">0</span>/<span class="text-slate-300">6</span>
+         </div>
+         <h3 id="results2-title" class="text-3xl font-bold text-white mb-3"></h3>
+         <div id="results2-message" class="text-lg text-slate-300 mb-6"></div><button id="retry-quiz2" onclick="resetQuiz2()" class="bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-400 hover:to-pink-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105"> 🔄 Try Again </button>
+        </div>
+       </div>
+      </div>
+     </section>
+    </main><!-- Footer -->
+    <footer class="text-center mt-8 text-slate-500 text-sm">
+     <p>Interactive Array Learning • Master programming concepts in Delphi</p>
+    </footer>
+   </div>
+  </div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      main_title: 'Learn Arrays Step by Step',
+      array_name: 'arrNames',
+      primary_color: '#06b6d4',
+      secondary_color: '#1e293b',
+      text_color: '#f1f5f9',
+      accent_color: '#10b981',
+      background_color: '#0f172a'
+    };
+
+    let config = { ...defaultConfig };
+    const arrayValues = ['Thabo', 'Michael', 'Jane', 'Gerhard', 'Sarah'];
+    const arrayAges = [25, 32, 28, 45, 31];
+    let currentLevel = 1;
+    let currentQuestionIndex = 0;
+    let currentQuestion2Index = 0;
+    let quizAnswers = {};
+    let quiz2Answers = {};
+    let isSearching = false;
+    let isParallelSearching = false;
+
+    const quizQuestions = [
+      {
+        level: 1,
+        type: 'declaration',
+        question: 'Which declaration statement correctly creates an array with 5 elements indexed from 1 to 5?',
+        options: [
+          'var arrNames : array[0..5] of string;',
+          'var arrNames : array[1..5] of string;',
+          'var arrNames : string[5];',
+          'var arrNames : array[1-5] of string;'
+        ],
+        correct: 1
+      },
+      {
+        level: 2,
+        type: 'assignment',
+        question: 'Which statement correctly assigns the value "Michael" to the second element of arrNames?',
+        options: [
+          'arrNames[1] := "Michael";',
+          'arrNames := "Michael"[2];',
+          'arrNames[2] := "Michael";',
+          '"Michael" := arrNames[2];'
+        ],
+        correct: 2
+      },
+      {
+        level: 3,
+        type: 'access',
+        question: 'If arrNames contains ["Thabo", "Michael", "Jane", "Gerhard", "Sarah"], what does arrNames[3] return?',
+        options: [
+          '"Gerhard"',
+          '"Michael"',
+          '"Jane"',
+          '"Sarah"'
+        ],
+        correct: 2
+      },
+      {
+        level: 4,
+        type: 'loop',
+        question: 'What does this code do: for iLoop := 1 to 5 do redOutput.lines.add(arrNames[iLoop]);',
+        options: [
+          'Displays only the first element',
+          'Displays the indices, not the values',
+          'Adds each element of the array to the RichEdit on separate lines',
+          'Displays only the last element'
+        ],
+        correct: 2
+      },
+      {
+        level: 5,
+        type: 'search',
+        question: 'In a linear search, what is the purpose of the bFound boolean variable?',
+        options: [
+          'To count how many times the loop runs',
+          'To track whether the search item has been found',
+          'To store the search term',
+          'To determine the array size'
+        ],
+        correct: 1
+      },
+      {
+        level: 5,
+        type: 'search',
+        question: 'What happens when a linear search item is found in the array?',
+        options: [
+          'The loop immediately stops',
+          'The bFound variable is set to True',
+          'The program displays a message and continues',
+          'The element is removed from the array'
+        ],
+        correct: 1
+      },
+      {
+        level: 5,
+        type: 'search',
+        question: 'If searching for "Michael" in the array ["Thabo", "Michael", "Jane", "Gerhard", "Sarah"], how many iterations does the search take?',
+        options: [
+          '1 iteration',
+          '2 iterations',
+          '3 iterations',
+          '5 iterations'
+        ],
+        correct: 1
+      },
+      {
+        level: 5,
+        type: 'search',
+        question: 'In the code: if bFound = False then ShowMessage(\'Not found\');  When is this message displayed?',
+        options: [
+          'Every time the loop runs',
+          'Only if the search term is found',
+          'Only if the search term is NOT found after checking all elements',
+          'At the beginning of the search'
+        ],
+        correct: 2
+      }
+    ];
+
+    const quiz2Questions = [
+      {
+        level: 7,
+        type: 'declaration',
+        question: 'What are parallel arrays?',
+        options: [
+          'Arrays that are displayed side by side on the screen',
+          'Multiple arrays that work together, with the same index representing related data',
+          'Arrays that only store numbers',
+          'Arrays that must be identical in size'
+        ],
+        correct: 1
+      },
+      {
+        level: 8,
+        type: 'assignment',
+        question: 'If you have arrNames and arrAges, how do you assign "Jane" to index 3 of names and age 28 to index 3 of ages?',
+        options: [
+          'arrNames[3] := "Jane"; arrAges[3] := 28;',
+          'arrNames := "Jane"; arrAges := 28;',
+          'arrNames[28] := "Jane"; arrAges[3] := 28;',
+          'arrNames + arrAges := "Jane" + 28;'
+        ],
+        correct: 0
+      },
+      {
+        level: 9,
+        type: 'access',
+        question: 'In parallel arrays, if arrNames[2] = "Michael", what does arrAges[2] represent?',
+        options: [
+          'The name at position 2',
+          'Michael\'s age',
+          'The second element only',
+          'Nothing, indices don\'t match'
+        ],
+        correct: 1
+      },
+      {
+        level: 10,
+        type: 'loop',
+        question: 'What is the advantage of using one loop with parallel arrays?',
+        options: [
+          'The code runs faster',
+          'You can access related data from different arrays at the same index in each iteration',
+          'Parallel arrays use less memory',
+          'Only one array needs to be indexed'
+        ],
+        correct: 1
+      },
+      {
+        level: 11,
+        type: 'search',
+        question: 'When searching parallel arrays for "Jane" in names and finding her age, which array provides the result?',
+        options: [
+          'The names array',
+          'The ages array at the same index where the name was found',
+          'Both arrays return the same value',
+          'A new combined array'
+        ],
+        correct: 1
+      },
+      {
+        level: 11,
+        type: 'search',
+        question: 'If you search for "Sarah" in arrNames and find her at index 5, what is the most efficient way to get her age?',
+        options: [
+          'Search the arrAges array from the beginning',
+          'Directly access arrAges[5]',
+          'Loop through both arrays again',
+          'Ask the user to type the age'
+        ],
+        correct: 1
+      }
+    ];
+
+    // Element SDK initialization
+    async function initApp() {
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (newConfig) => {
+            config = { ...defaultConfig, ...newConfig };
+            applyConfig();
+          },
+          mapToCapabilities: (cfg) => ({
+            recolorables: [
+              {
+                get: () => cfg.background_color || defaultConfig.background_color,
+                set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+              },
+              {
+                get: () => cfg.secondary_color || defaultConfig.secondary_color,
+                set: (v) => { cfg.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+              },
+              {
+                get: () => cfg.text_color || defaultConfig.text_color,
+                set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+              },
+              {
+                get: () => cfg.primary_color || defaultConfig.primary_color,
+                set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+              },
+              {
+                get: () => cfg.accent_color || defaultConfig.accent_color,
+                set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+              }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ['main_title', cfg.main_title || defaultConfig.main_title],
+            ['array_name', cfg.array_name || defaultConfig.array_name]
+          ])
+        });
+        config = { ...defaultConfig, ...window.elementSdk.config };
+      }
+      applyConfig();
+      initLevel1Blocks();
+      initLevel2Blocks();
+      initLevel3Blocks();
+      initSearchBlocks();
+      initQuiz();
+      initLevel7();
+      initLevel8();
+      initLevel9();
+      initLevel10();
+      initParallelSearchBlocks();
+      initQuiz2();
+    }
+
+    function applyConfig() {
+      const title = config.main_title || defaultConfig.main_title;
+      const arrayName = config.array_name || defaultConfig.array_name;
+      
+      document.getElementById('main-title').textContent = title;
+      document.getElementById('array-name-display').textContent = arrayName;
+      document.getElementById('explanation-array-name').textContent = arrayName;
+      
+      const wrapper = document.getElementById('app-wrapper');
+      wrapper.style.background = `linear-gradient(to bottom right, ${config.background_color || defaultConfig.background_color}, ${config.secondary_color || defaultConfig.secondary_color}, ${config.background_color || defaultConfig.background_color})`;
+    }
+
+    function goToLevel(level) {
+      currentLevel = level;
+      document.querySelectorAll('.level-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`level-${level}`).classList.remove('hidden');
+      
+      document.querySelectorAll('.level-btn').forEach((btn, i) => {
+        const btnLevel = i + 1;
+        if (btnLevel === level) {
+          btn.className = 'level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-cyan-500 text-slate-900';
+        } else {
+          btn.className = 'level-btn px-4 py-2 rounded-lg font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600';
+        }
+      });
+    }
+
+    // ===== LEVELS 1-5 CODE =====
+    function initLevel1Blocks() {
+      const container = document.getElementById('array-blocks');
+      container.innerHTML = '';
+    }
+
+    function playLevel1() {
+      const container = document.getElementById('array-blocks');
+      container.innerHTML = '';
+      
+      document.getElementById('play-level-1').classList.add('hidden');
+      document.getElementById('reset-level-1').classList.remove('hidden');
+
+      const declLine = document.getElementById('decl-line-1');
+      declLine.classList.add('code-line-highlight');
+
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const block = createArrayBlock(i, '?', 'cyan');
+          block.style.opacity = '0';
+          container.appendChild(block);
+          
+          setTimeout(() => {
+            block.classList.add('animate-slide-in');
+            block.style.opacity = '1';
+          }, 50);
+        }, i * 700);
+      }
+    }
+
+    function resetLevel1() {
+      document.getElementById('array-blocks').innerHTML = '';
+      document.getElementById('decl-line-1').classList.remove('code-line-highlight');
+      document.getElementById('play-level-1').classList.remove('hidden');
+      document.getElementById('reset-level-1').classList.add('hidden');
+    }
+
+    function initLevel2Blocks() {
+      const container = document.getElementById('array-blocks-2');
+      container.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const block = createArrayBlock(i, '?', 'emerald', false);
+        container.appendChild(block);
+      }
+    }
+
+    function playLevel2() {
+      const container = document.getElementById('array-blocks-2');
+      const codeContainer = document.getElementById('assignment-lines');
+      const arrayName = config.array_name || defaultConfig.array_name;
+      
+      container.innerHTML = '';
+      codeContainer.innerHTML = '';
+      
+      document.getElementById('play-level-2').classList.add('hidden');
+      document.getElementById('reset-level-2').classList.remove('hidden');
+
+      for (let i = 1; i <= 5; i++) {
+        const block = createArrayBlock(i, '?', 'emerald', false);
+        block.id = `block-2-${i}`;
+        container.appendChild(block);
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const codeLine = document.createElement('div');
+          codeLine.id = `assign-line-${i}`;
+          codeLine.className = 'code-line animate-fade-in-up ml-4';
+          const displayValue = arrayValues[i-1];
+          codeLine.innerHTML = `
+            <span class="text-cyan-300">${arrayName}</span>
+            <span class="text-white">[</span>
+            <span class="text-green-400">${i}</span>
+            <span class="text-white">] := </span>
+            <span class="text-orange-400">'${displayValue}'</span>
+            <span class="text-white">;</span>
+          `;
+          codeContainer.appendChild(codeLine);
+
+          codeLine.classList.add('code-line-highlight');
+
+          const block = document.getElementById(`block-2-${i}`);
+          const valueSpan = block.querySelector('.value-display');
+          valueSpan.textContent = arrayValues[i-1];
+          valueSpan.classList.add('value-fill');
+          block.classList.add('animate-pop-in');
+
+          setTimeout(() => {
+            codeLine.classList.remove('code-line-highlight');
+          }, 600);
+        }, i * 1400);
+      }
+    }
+
+    function resetLevel2() {
+      initLevel2Blocks();
+      document.getElementById('assignment-lines').innerHTML = '';
+      document.getElementById('play-level-2').classList.remove('hidden');
+      document.getElementById('reset-level-2').classList.add('hidden');
+    }
+
+    function initLevel3Blocks() {
+      const container = document.getElementById('array-blocks-3');
+      container.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const block = createArrayBlock(i, arrayValues[i-1], 'amber', true);
+        block.onclick = () => accessElement(i);
+        container.appendChild(block);
+      }
+    }
+
+    function accessElement(index) {
+      const arrayName = config.array_name || defaultConfig.array_name;
+      const accessLine = document.getElementById('access-line');
+      const outputDisplay = document.getElementById('output-display');
+      const outputValue = document.getElementById('output-value');
+
+      document.querySelectorAll('#array-blocks-3 .array-block').forEach(b => {
+        b.style.transform = 'scale(1)';
+        b.style.boxShadow = 'none';
+      });
+      
+      const clickedBlock = document.querySelectorAll('#array-blocks-3 .array-block')[index - 1];
+      clickedBlock.style.transform = 'scale(1.05)';
+      clickedBlock.style.boxShadow = '0 0 30px rgba(251, 191, 36, 0.5)';
+
+      const displayValue = arrayValues[index-1];
+      accessLine.innerHTML = `
+        <span class="text-yellow-400">ShowMessage</span>
+        <span class="text-white">(</span>
+        <span class="text-cyan-300">${arrayName}</span>
+        <span class="text-white">[</span>
+        <span class="text-green-400">${index}</span>
+        <span class="text-white">]);</span>
+        <span class="text-slate-500 ml-4">{ Displays: '${displayValue}' }</span>
+      `;
+      accessLine.classList.add('code-line-highlight', 'animate-fade-in-up');
+
+      outputDisplay.classList.remove('hidden');
+      outputValue.textContent = displayValue;
+      outputValue.classList.add('animate-pop-in');
+
+      setTimeout(() => {
+        accessLine.classList.remove('code-line-highlight');
+      }, 900);
+    }
+
+    function playLevel4() {
+      const richedit = document.getElementById('richedit-output');
+      const executeLine = document.getElementById('loop-execute-line');
+      const forLine = document.getElementById('loop-for-line');
+      richedit.innerHTML = '';
+      
+      document.getElementById('play-level-4').classList.add('hidden');
+      document.getElementById('reset-level-4').classList.remove('hidden');
+
+      forLine.classList.add('code-line-highlight');
+
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const loopVarDisplay = document.getElementById('loop-var-display');
+          executeLine.classList.add('code-line-highlight');
+          loopVarDisplay.textContent = i;
+
+          const line = document.createElement('div');
+          line.textContent = arrayValues[i-1];
+          line.className = 'loop-line';
+          line.style.animationDelay = `${i * 0.1}s`;
+          richedit.appendChild(line);
+
+          const iterationBox = document.getElementById(`loop-iteration-${i}`);
+          iterationBox.querySelector('.value-display').textContent = arrayValues[i-1];
+          iterationBox.classList.add('bg-pink-500/20', 'border-pink-400');
+
+          setTimeout(() => {
+            executeLine.classList.remove('code-line-highlight');
+          }, 600);
+        }, i * 1100);
+      }
+
+      setTimeout(() => {
+        forLine.classList.remove('code-line-highlight');
+      }, 6500);
+    }
+
+    function resetLevel4() {
+      document.getElementById('richedit-output').innerHTML = '';
+      const executeLine = document.getElementById('loop-execute-line');
+      const forLine = document.getElementById('loop-for-line');
+      const loopVarDisplay = document.getElementById('loop-var-display');
+      
+      executeLine.classList.remove('code-line-highlight');
+      forLine.classList.remove('code-line-highlight');
+      loopVarDisplay.textContent = '—';
+      
+      for (let i = 1; i <= 5; i++) {
+        const iterationBox = document.getElementById(`loop-iteration-${i}`);
+        iterationBox.querySelector('.value-display').textContent = '—';
+        iterationBox.classList.remove('bg-pink-500/20', 'border-pink-400');
+      }
+      
+      document.getElementById('play-level-4').classList.remove('hidden');
+      document.getElementById('reset-level-4').classList.add('hidden');
+    }
+
+    function initSearchBlocks() {
+      const container = document.getElementById('search-blocks');
+      container.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const block = createArrayBlock(i, arrayValues[i-1], 'indigo', false);
+        block.id = `search-block-${i}`;
+        container.appendChild(block);
+      }
+    }
+
+    function startSearch() {
+      if (isSearching) return;
+
+      const searchInput = document.getElementById('search-input');
+      const searchTerm = searchInput.value.trim();
+      const errorDiv = document.getElementById('search-error');
+
+      if (!searchTerm) {
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      errorDiv.classList.add('hidden');
+      isSearching = true;
+
+      document.getElementById('search-term-display').textContent = `'${searchTerm}'`;
+      document.getElementById('search-button').disabled = true;
+      document.getElementById('search-button').classList.add('opacity-50');
+      document.getElementById('reset-search').classList.remove('hidden');
+
+      const searchLog = document.getElementById('search-log');
+      const resultDiv = document.getElementById('search-result');
+      const bfoundStatus = document.getElementById('bfound-status');
+      searchLog.innerHTML = '';
+      resultDiv.classList.add('hidden');
+
+      bfoundStatus.textContent = 'False';
+      bfoundStatus.className = 'mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center';
+
+      const initLine = document.getElementById('search-init-line');
+      initLine.classList.add('code-line-highlight');
+
+      let bFound = false;
+      let foundIndex = -1;
+
+      setTimeout(() => {
+        initLine.classList.remove('code-line-highlight');
+
+        const forLine = document.getElementById('search-for-line');
+        forLine.classList.add('code-line-highlight');
+
+        for (let iLoop = 1; iLoop <= 5; iLoop++) {
+          setTimeout(() => {
+            const ifLine = document.getElementById('search-if-line');
+            ifLine.classList.add('code-line-highlight');
+
+            const block = document.getElementById(`search-block-${iLoop}`);
+            block.classList.add('search-block-checking');
+
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `iLoop=${iLoop}: Checking '${arrayValues[iLoop-1]}'...`;
+            logEntry.className = 'mb-1';
+            searchLog.appendChild(logEntry);
+            searchLog.scrollTop = searchLog.scrollHeight;
+
+            if (arrayValues[iLoop-1].toLowerCase() === searchTerm.toLowerCase()) {
+              bFound = true;
+              foundIndex = iLoop;
+
+              setTimeout(() => {
+                block.classList.remove('search-block-checking');
+                block.classList.add('search-block-found');
+                ifLine.classList.remove('code-line-highlight');
+
+                const assignLine = document.getElementById('search-assign-line');
+                assignLine.classList.add('code-line-highlight');
+
+                setTimeout(() => {
+                  assignLine.classList.remove('code-line-highlight');
+
+                  bfoundStatus.textContent = 'True';
+                  bfoundStatus.classList.remove('bfound-false');
+                  bfoundStatus.classList.add('bfound-true');
+                  
+                  const foundLog = document.createElement('div');
+                  foundLog.textContent = `✓ Found '${searchTerm}' at index ${iLoop}!`;
+                  foundLog.className = 'mb-1 text-green-400 font-bold';
+                  searchLog.appendChild(foundLog);
+                  searchLog.scrollTop = searchLog.scrollHeight;
+
+                  setTimeout(() => {
+                    forLine.classList.remove('code-line-highlight');
+                    showSearchResults(bFound, foundIndex, searchTerm);
+                  }, 2000);
+                }, 700);
+              }, 400);
+            } else {
+              setTimeout(() => {
+                block.classList.remove('search-block-checking');
+                ifLine.classList.remove('code-line-highlight');
+
+                if (iLoop === 5 && !bFound) {
+                  setTimeout(() => {
+                    forLine.classList.remove('code-line-highlight');
+                    
+                    const resultIfLine = document.getElementById('result-if-line');
+                    resultIfLine.classList.add('code-line-highlight');
+
+                    const notFoundLine = document.getElementById('not-found-line');
+                    notFoundLine.classList.add('code-line-highlight');
+
+                    bfoundStatus.textContent = 'False';
+                    bfoundStatus.classList.remove('bfound-true');
+                    bfoundStatus.classList.add('bfound-false');
+
+                    const notFoundLog = document.createElement('div');
+                    notFoundLog.textContent = `✗ '${searchTerm}' not found in any element`;
+                    notFoundLog.className = 'mb-1 text-red-400 font-bold';
+                    searchLog.appendChild(notFoundLog);
+                    searchLog.scrollTop = searchLog.scrollHeight;
+
+                    setTimeout(() => {
+                      showSearchResults(bFound, foundIndex, searchTerm);
+                    }, 1500);
+                  }, 600);
+                }
+              }, 900);
+            }
+          }, iLoop * 1500);
+        }
+      }, 400);
+    }
+
+    function showSearchResults(bFound, foundIndex, searchTerm) {
+      const resultDiv = document.getElementById('search-result');
+      const resultMessage = document.getElementById('result-message');
+      const resultIterations = document.getElementById('result-iterations');
+      const notFoundLine = document.getElementById('not-found-line');
+      const resultIfLine = document.getElementById('result-if-line');
+
+      resultDiv.classList.remove('hidden');
+
+      if (bFound) {
+        resultIfLine.classList.add('hidden');
+        notFoundLine.classList.add('hidden');
+        resultMessage.textContent = `✓ Found at index ${foundIndex}`;
+        resultMessage.className = 'mono text-lg font-bold text-green-400';
+        resultIterations.textContent = `Iterations needed: ${foundIndex}`;
+      } else {
+        resultIfLine.classList.remove('hidden');
+        notFoundLine.classList.remove('hidden');
+        resultMessage.textContent = `✗ '${searchTerm}' not found`;
+        resultMessage.className = 'mono text-lg font-bold text-red-400';
+        resultIterations.textContent = `Searched all 5 elements`;
+      }
+
+      isSearching = false;
+    }
+
+    function resetSearch() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-error').classList.add('hidden');
+      document.getElementById('search-button').disabled = false;
+      document.getElementById('search-button').classList.remove('opacity-50');
+      document.getElementById('reset-search').classList.add('hidden');
+      document.getElementById('search-result').classList.add('hidden');
+      document.getElementById('search-log').innerHTML = '';
+      document.getElementById('search-status').textContent = 'Ready...';
+      
+      document.getElementById('search-init-line').classList.remove('code-line-highlight');
+      document.getElementById('search-for-line').classList.remove('code-line-highlight');
+      document.getElementById('search-if-line').classList.remove('code-line-highlight');
+      document.getElementById('search-assign-line').classList.remove('code-line-highlight');
+      document.getElementById('result-if-line').classList.remove('code-line-highlight', 'hidden');
+      document.getElementById('not-found-line').classList.remove('code-line-highlight', 'hidden');
+      
+      const bfoundStatus = document.getElementById('bfound-status');
+      bfoundStatus.textContent = 'False';
+      bfoundStatus.className = 'mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center';
+
+      document.querySelectorAll('[id^="search-block-"]').forEach(block => {
+        block.classList.remove('search-block-checking', 'search-block-found');
+      });
+
+      document.getElementById('search-term-display').textContent = "'...'";
+
+      isSearching = false;
+    }
+
+    // ===== QUIZ 1 =====
+    function initQuiz() {
+      const container = document.getElementById('quiz-container');
+      const indicators = document.getElementById('quiz-indicators');
+      
+      container.innerHTML = '';
+      indicators.innerHTML = '';
+      quizAnswers = {};
+      currentQuestionIndex = 0;
+
+      for (let i = 0; i < quizQuestions.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot ' + (i === 0 ? 'active' : 'pending');
+        indicators.appendChild(dot);
+      }
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const container = document.getElementById('quiz-container');
+      const question = quizQuestions[currentQuestionIndex];
+
+      container.innerHTML = '';
+
+      const levelBadge = document.createElement('div');
+      levelBadge.className = 'inline-block bg-purple-500/20 border border-purple-500/50 text-purple-300 px-3 py-1 rounded-full text-sm font-semibold mb-4';
+      levelBadge.textContent = `Level ${question.level} - ${question.type.charAt(0).toUpperCase() + question.type.slice(1)}`;
+      container.appendChild(levelBadge);
+
+      const questionTitle = document.createElement('h3');
+      questionTitle.className = 'text-2xl font-bold text-white mb-6';
+      questionTitle.textContent = question.question;
+      container.appendChild(questionTitle);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'space-y-3';
+
+      question.options.forEach((option, idx) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option bg-slate-900 rounded-lg p-4 border-2 border-slate-700';
+        if (quizAnswers[currentQuestionIndex] === idx) {
+          optionDiv.classList.add('selected');
+        }
+
+        optionDiv.innerHTML = `
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-slate-500 flex items-center justify-center mt-1">
+              <div class="w-2 h-2 rounded-full bg-slate-500 opacity-0 transition-opacity"></div>
+            </div>
+            <div class="flex-1">
+              <p class="text-slate-200 font-medium mono text-sm">${option}</p>
+            </div>
+          </div>
+        `;
+
+        optionDiv.onclick = () => selectAnswer(idx, optionDiv);
+        optionsDiv.appendChild(optionDiv);
+      });
+
+      container.appendChild(optionsDiv);
+
+      updateNavigationButtons();
+      updateProgress();
+    }
+
+    function selectAnswer(idx, element) {
+      document.querySelectorAll('.quiz-option.selected').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+
+      element.classList.add('selected');
+      quizAnswers[currentQuestionIndex] = idx;
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+      }
+    }
+
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById('prev-question');
+      const nextBtn = document.getElementById('next-question');
+      const submitBtn = document.getElementById('submit-quiz');
+
+      if (currentQuestionIndex === 0) {
+        prevBtn.classList.add('hidden');
+      } else {
+        prevBtn.classList.remove('hidden');
+      }
+
+      if (currentQuestionIndex === quizQuestions.length - 1) {
+        nextBtn.classList.add('hidden');
+        submitBtn.classList.remove('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+        submitBtn.classList.add('hidden');
+      }
+    }
+
+    function updateProgress() {
+      const progress = document.getElementById('quiz-progress');
+      progress.textContent = `Question ${currentQuestionIndex + 1} of ${quizQuestions.length}`;
+
+      const indicators = document.querySelectorAll('.progress-dot');
+      indicators.forEach((dot, idx) => {
+        dot.className = 'progress-dot';
+        if (idx < currentQuestionIndex) {
+          dot.classList.add('completed');
+        } else if (idx === currentQuestionIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.add('pending');
+        }
+      });
+    }
+
+    function submitQuiz() {
+      const results = document.getElementById('quiz-results');
+      const resultsTitle = document.getElementById('results-title');
+      const resultsMessage = document.getElementById('results-message');
+      const scoreNumber = document.getElementById('score-number');
+
+      let correct = 0;
+      for (let i = 0; i < quizQuestions.length; i++) {
+        if (quizAnswers[i] === quizQuestions[i].correct) {
+          correct++;
+        }
+      }
+
+      scoreNumber.textContent = correct;
+
+      const percentage = Math.round((correct / quizQuestions.length) * 100);
+
+      if (percentage === 100) {
+        resultsTitle.textContent = '🎉 Perfect Score!';
+        resultsMessage.innerHTML = 'You\'ve mastered arrays! You understand declaration, assignment, access, loops, and searching perfectly.';
+        resultsMessage.className = 'text-lg text-green-300';
+      } else if (percentage >= 80) {
+        resultsTitle.textContent = '✨ Excellent!';
+        resultsMessage.innerHTML = 'Great job! You have a solid understanding of array concepts. Review the weak areas and try again.';
+        resultsMessage.className = 'text-lg text-yellow-300';
+      } else if (percentage >= 60) {
+        resultsTitle.textContent = '✓ Good Try!';
+        resultsMessage.innerHTML = 'You got some concepts right. Go back to review the levels and try the quiz again.';
+        resultsMessage.className = 'text-lg text-blue-300';
+      } else {
+        resultsTitle.textContent = '📚 Keep Learning!';
+        resultsMessage.innerHTML = 'Don\'t worry! Go through each level again, then return to the quiz. You\'ll do better!';
+        resultsMessage.className = 'text-lg text-orange-300';
+      }
+
+      document.getElementById('quiz-container').classList.add('hidden');
+      document.getElementById('prev-question').classList.add('hidden');
+      document.getElementById('next-question').classList.add('hidden');
+      document.getElementById('submit-quiz').classList.add('hidden');
+      results.classList.remove('hidden');
+    }
+
+    function resetQuiz() {
+      document.getElementById('quiz-results').classList.add('hidden');
+      document.getElementById('quiz-container').classList.remove('hidden');
+      document.getElementById('prev-question').classList.add('hidden');
+      document.getElementById('next-question').classList.remove('hidden');
+      document.getElementById('submit-quiz').classList.add('hidden');
+      initQuiz();
+    }
+
+    // ===== PARALLEL ARRAYS LEVELS (7-11) =====
+    function initLevel7() {
+      const visual = document.getElementById('parallel-decl-visual');
+      visual.innerHTML = '';
+    }
+
+    function playLevel7() {
+      const visual = document.getElementById('parallel-decl-visual');
+      visual.innerHTML = '';
+      
+      document.getElementById('play-level-7').classList.add('hidden');
+      document.getElementById('reset-level-7').classList.remove('hidden');
+
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const pair = document.createElement('div');
+          pair.className = 'parallel-pair opacity-0 transition-all duration-500';
+          pair.style.animationDelay = `${i * 0.2}s`;
+          
+          pair.innerHTML = `
+            <div class="parallel-column">
+              <div class="parallel-label">arrNames[${i}]</div>
+              <div class="parallel-block bg-rose-500/20 border-rose-500 text-rose-400">
+                <div class="parallel-index bg-rose-500 text-white">${i}</div>
+                <div class="parallel-value">?</div>
+              </div>
+            </div>
+            <div class="parallel-column">
+              <div class="parallel-label">arrAges[${i}]</div>
+              <div class="parallel-block bg-sky-500/20 border-sky-500 text-sky-400">
+                <div class="parallel-index bg-sky-500 text-white">${i}</div>
+                <div class="parallel-value">?</div>
+              </div>
+            </div>
+          `;
+          
+          visual.appendChild(pair);
+          setTimeout(() => pair.classList.add('opacity-100'), 50);
+        }, i * 400);
+      }
+    }
+
+    function resetLevel7() {
+      document.getElementById('parallel-decl-visual').innerHTML = '';
+      document.getElementById('play-level-7').classList.remove('hidden');
+      document.getElementById('reset-level-7').classList.add('hidden');
+    }
+
+    function initLevel8() {
+      const visual = document.getElementById('parallel-assign-visual');
+      visual.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const pair = document.createElement('div');
+        pair.className = 'parallel-pair';
+        
+        pair.innerHTML = `
+          <div class="parallel-column">
+            <div class="parallel-label">arrNames[${i}]</div>
+            <div class="parallel-block bg-sky-500/20 border-sky-500 text-sky-400">
+              <div class="parallel-index bg-sky-500 text-white">${i}</div>
+              <div class="parallel-value">?</div>
+            </div>
+          </div>
+          <div class="parallel-column">
+            <div class="parallel-label">arrAges[${i}]</div>
+            <div class="parallel-block bg-cyan-500/20 border-cyan-500 text-cyan-400">
+              <div class="parallel-index bg-cyan-500 text-white">${i}</div>
+              <div class="parallel-value">?</div>
+            </div>
+          </div>
+        `;
+        
+        visual.appendChild(pair);
+      }
+    }
+
+    function playLevel8() {
+      const codeContainer = document.getElementById('parallel-assign-lines');
+      codeContainer.innerHTML = '';
+      
+      document.getElementById('play-level-8').classList.add('hidden');
+      document.getElementById('reset-level-8').classList.remove('hidden');
+
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const codeLine = document.createElement('div');
+          codeLine.className = 'code-line ml-4 animate-fade-in-up';
+          codeLine.innerHTML = `
+            <span class="text-cyan-300">arrNames</span>
+            <span class="text-white">[</span>
+            <span class="text-green-400">${i}</span>
+            <span class="text-white">] := '</span>
+            <span class="text-orange-400">${arrayValues[i-1]}</span>
+            <span class="text-white">'; </span>
+            <span class="text-cyan-300">arrAges</span>
+            <span class="text-white">[</span>
+            <span class="text-green-400">${i}</span>
+            <span class="text-white">] := </span>
+            <span class="text-green-400">${arrayAges[i-1]}</span>
+            <span class="text-white">;</span>
+          `;
+          codeContainer.appendChild(codeLine);
+          codeLine.classList.add('code-line-highlight');
+
+          // Update visualization
+          const pairs = document.querySelectorAll('#parallel-assign-visual .parallel-pair');
+          if (pairs[i-1]) {
+            const nameValue = pairs[i-1].querySelector('.parallel-column:first-child .parallel-value');
+            const ageValue = pairs[i-1].querySelector('.parallel-column:last-child .parallel-value');
+            nameValue.textContent = arrayValues[i-1];
+            ageValue.textContent = arrayAges[i-1];
+            pairs[i-1].classList.add('opacity-50');
+          }
+
+          setTimeout(() => {
+            codeLine.classList.remove('code-line-highlight');
+          }, 600);
+        }, i * 1400);
+      }
+    }
+
+    function resetLevel8() {
+      initLevel8();
+      document.getElementById('parallel-assign-lines').innerHTML = '';
+      document.getElementById('play-level-8').classList.remove('hidden');
+      document.getElementById('reset-level-8').classList.add('hidden');
+    }
+
+    function initLevel9() {
+      const visual = document.getElementById('parallel-access-visual');
+      visual.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const pair = document.createElement('div');
+        pair.className = 'parallel-pair cursor-pointer hover:opacity-80 transition-opacity';
+        pair.onclick = () => accessParallel(i);
+        
+        pair.innerHTML = `
+          <div class="parallel-column">
+            <div class="parallel-label">arrNames[${i}]</div>
+            <div class="parallel-block bg-teal-500/20 border-teal-500 text-teal-400">
+              <div class="parallel-index bg-teal-500 text-white">${i}</div>
+              <div class="parallel-value">${arrayValues[i-1]}</div>
+            </div>
+          </div>
+          <div class="parallel-column">
+            <div class="parallel-label">arrAges[${i}]</div>
+            <div class="parallel-block bg-emerald-500/20 border-emerald-500 text-emerald-400">
+              <div class="parallel-index bg-emerald-500 text-white">${i}</div>
+              <div class="parallel-value">${arrayAges[i-1]}</div>
+            </div>
+          </div>
+        `;
+        
+        visual.appendChild(pair);
+      }
+    }
+
+    function accessParallel(index) {
+      const accessLine = document.getElementById('parallel-access-line');
+      const outputDisplay = document.getElementById('parallel-output');
+      const outputText = document.getElementById('parallel-output-text');
+
+      document.querySelectorAll('#parallel-access-visual .parallel-pair').forEach(p => {
+        p.style.opacity = '0.4';
+      });
+      
+      const pairs = document.querySelectorAll('#parallel-access-visual .parallel-pair');
+      pairs[index-1].style.opacity = '1';
+
+      accessLine.innerHTML = `
+        <span class="text-yellow-400">ShowMessage</span>
+        <span class="text-white">(</span>
+        <span class="text-cyan-300">arrNames</span>
+        <span class="text-white">[</span>
+        <span class="text-green-400">${index}</span>
+        <span class="text-white">] + ' is ' + </span>
+        <span class="text-yellow-400">IntToStr</span>
+        <span class="text-white">(</span>
+        <span class="text-cyan-300">arrAges</span>
+        <span class="text-white">[</span>
+        <span class="text-green-400">${index}</span>
+        <span class="text-white">]));</span>
+      `;
+      accessLine.classList.add('code-line-highlight');
+
+      outputDisplay.classList.remove('hidden');
+      outputText.textContent = `${arrayValues[index-1]} is ${arrayAges[index-1]}`;
+
+      setTimeout(() => {
+        accessLine.classList.remove('code-line-highlight');
+      }, 900);
+    }
+
+    function initLevel10() {
+      const container = document.getElementById('parallel-richedit-output');
+      container.innerHTML = '';
+    }
+
+    function playLevel10() {
+      const richedit = document.getElementById('parallel-richedit-output');
+      const executeLine = document.getElementById('parallel-loop-execute');
+      const forLine = document.getElementById('parallel-for-line');
+      richedit.innerHTML = '';
+      
+      document.getElementById('play-level-10').classList.add('hidden');
+      document.getElementById('reset-level-10').classList.remove('hidden');
+
+      forLine.classList.add('code-line-highlight');
+
+      for (let iLoop = 1; iLoop <= 5; iLoop++) {
+        setTimeout(() => {
+          const loopVar = document.getElementById('parallel-loop-var');
+          executeLine.classList.add('code-line-highlight');
+          loopVar.textContent = iLoop;
+
+          const line = document.createElement('div');
+          line.textContent = `${arrayValues[iLoop-1]} - Age: ${arrayAges[iLoop-1]}`;
+          line.className = 'loop-line';
+          line.style.animationDelay = `${iLoop * 0.1}s`;
+          richedit.appendChild(line);
+
+          setTimeout(() => {
+            executeLine.classList.remove('code-line-highlight');
+          }, 600);
+        }, iLoop * 1100);
+      }
+
+      setTimeout(() => {
+        forLine.classList.remove('code-line-highlight');
+      }, 6500);
+    }
+
+    function resetLevel10() {
+      document.getElementById('parallel-richedit-output').innerHTML = '';
+      document.getElementById('parallel-loop-execute').classList.remove('code-line-highlight');
+      document.getElementById('parallel-for-line').classList.remove('code-line-highlight');
+      document.getElementById('parallel-loop-var').textContent = '—';
+      document.getElementById('play-level-10').classList.remove('hidden');
+      document.getElementById('reset-level-10').classList.add('hidden');
+    }
+
+    function initParallelSearchBlocks() {
+      const visual = document.getElementById('parallel-search-visual');
+      visual.innerHTML = '';
+      
+      for (let i = 1; i <= 5; i++) {
+        const pair = document.createElement('div');
+        pair.className = 'parallel-pair';
+        pair.id = `parallel-search-pair-${i}`;
+        
+        pair.innerHTML = `
+          <div class="parallel-column">
+            <div class="parallel-label">arrNames[${i}]</div>
+            <div class="parallel-block bg-orange-500/20 border-orange-500 text-orange-400">
+              <div class="parallel-index bg-orange-500 text-white">${i}</div>
+              <div class="parallel-value">${arrayValues[i-1]}</div>
+            </div>
+          </div>
+          <div class="parallel-column">
+            <div class="parallel-label">arrAges[${i}]</div>
+            <div class="parallel-block bg-amber-500/20 border-amber-500 text-amber-400">
+              <div class="parallel-index bg-amber-500 text-white">${i}</div>
+              <div class="parallel-value">${arrayAges[i-1]}</div>
+            </div>
+          </div>
+        `;
+        
+        visual.appendChild(pair);
+      }
+    }
+
+    function startParallelSearch() {
+      if (isParallelSearching) return;
+
+      const searchInput = document.getElementById('parallel-search-input');
+      const searchTerm = searchInput.value.trim();
+      const errorDiv = document.getElementById('parallel-search-error');
+
+      if (!searchTerm) {
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      errorDiv.classList.add('hidden');
+      isParallelSearching = true;
+
+      document.getElementById('parallel-search-term').textContent = `'${searchTerm}'`;
+      document.getElementById('parallel-search-button').disabled = true;
+      document.getElementById('parallel-search-button').classList.add('opacity-50');
+      document.getElementById('reset-parallel-search').classList.remove('hidden');
+
+      const searchLog = document.getElementById('parallel-search-log');
+      const resultDiv = document.getElementById('parallel-search-result');
+      const bfoundStatus = document.getElementById('parallel-bfound-status');
+      searchLog.innerHTML = '';
+      resultDiv.classList.add('hidden');
+
+      bfoundStatus.textContent = 'False';
+      bfoundStatus.className = 'mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center';
+
+      let currentLineDelay = 0;
+      
+      setTimeout(() => {
+        document.getElementById('psearch-var-line').classList.add('code-line-highlight');
+        setTimeout(() => document.getElementById('psearch-var-line').classList.remove('code-line-highlight'), 600);
+      }, currentLineDelay);
+      currentLineDelay += 800;
+
+      setTimeout(() => {
+        document.getElementById('psearch-iloop-line').classList.add('code-line-highlight');
+        setTimeout(() => document.getElementById('psearch-iloop-line').classList.remove('code-line-highlight'), 600);
+      }, currentLineDelay);
+      currentLineDelay += 800;
+
+      setTimeout(() => {
+        document.getElementById('psearch-bfound-line').classList.add('code-line-highlight');
+        setTimeout(() => document.getElementById('psearch-bfound-line').classList.remove('code-line-highlight'), 600);
+      }, currentLineDelay);
+      currentLineDelay += 800;
+
+      setTimeout(() => {
+        document.getElementById('psearch-begin-line').classList.add('code-line-highlight');
+        setTimeout(() => document.getElementById('psearch-begin-line').classList.remove('code-line-highlight'), 600);
+      }, currentLineDelay);
+      currentLineDelay += 800;
+
+      setTimeout(() => {
+        document.getElementById('psearch-init-line').classList.add('code-line-highlight');
+        setTimeout(() => document.getElementById('psearch-init-line').classList.remove('code-line-highlight'), 600);
+      }, currentLineDelay);
+      currentLineDelay += 800;
+
+      setTimeout(() => {
+        document.getElementById('psearch-for-line').classList.add('code-line-highlight');
+      }, currentLineDelay);
+
+      let bFound = false;
+      let foundAge = -1;
+      let foundIndex = -1;
+
+      for (let iLoop = 1; iLoop <= 5; iLoop++) {
+        setTimeout(() => {
+          document.getElementById('psearch-inner-begin').classList.add('code-line-highlight');
+          setTimeout(() => document.getElementById('psearch-inner-begin').classList.remove('code-line-highlight'), 600);
+        }, currentLineDelay + iLoop * 2000 - 1400);
+
+        setTimeout(() => {
+          document.getElementById('psearch-if-line').classList.add('code-line-highlight');
+
+          const pair = document.getElementById(`parallel-search-pair-${iLoop}`);
+          pair.style.opacity = '0.5';
+
+          const logEntry = document.createElement('div');
+          logEntry.textContent = `iLoop=${iLoop}: Checking '${arrayValues[iLoop-1]}'...`;
+          searchLog.appendChild(logEntry);
+          searchLog.scrollTop = searchLog.scrollHeight;
+
+          if (arrayValues[iLoop-1].toLowerCase() === searchTerm.toLowerCase()) {
+            bFound = true;
+            foundAge = arrayAges[iLoop-1];
+            foundIndex = iLoop;
+
+            setTimeout(() => {
+              document.getElementById('psearch-if-line').classList.remove('code-line-highlight');
+              document.getElementById('psearch-then-begin').classList.add('code-line-highlight');
+              
+              setTimeout(() => {
+                document.getElementById('psearch-then-begin').classList.remove('code-line-highlight');
+                document.getElementById('psearch-assign1-line').classList.add('code-line-highlight');
+
+                setTimeout(() => {
+                  document.getElementById('psearch-assign1-line').classList.remove('code-line-highlight');
+                  document.getElementById('psearch-assign2-line').classList.add('code-line-highlight');
+                  bfoundStatus.textContent = 'True';
+                  bfoundStatus.classList.add('bfound-true');
+                  
+                  const foundLog = document.createElement('div');
+                  foundLog.textContent = `✓ Found at index ${iLoop}`;
+                  foundLog.className = 'text-green-400 font-bold';
+                  searchLog.appendChild(foundLog);
+                  searchLog.scrollTop = searchLog.scrollHeight;
+
+                  setTimeout(() => {
+                    document.getElementById('psearch-assign2-line').classList.remove('code-line-highlight');
+                    document.getElementById('psearch-then-end').classList.add('code-line-highlight');
+
+                    setTimeout(() => {
+                      document.getElementById('psearch-then-end').classList.remove('code-line-highlight');
+                      document.getElementById('psearch-inner-end').classList.add('code-line-highlight');
+                      pair.style.opacity = '1';
+                      pair.style.boxShadow = '0 0 30px rgba(34, 211, 238, 0.6)';
+
+                      setTimeout(() => {
+                        document.getElementById('psearch-inner-end').classList.remove('code-line-highlight');
+                        document.getElementById('psearch-for-line').classList.remove('code-line-highlight');
+                        document.getElementById('psearch-result-if').classList.add('code-line-highlight');
+
+                        setTimeout(() => {
+                          document.getElementById('psearch-result-if').classList.remove('code-line-highlight');
+                          document.getElementById('psearch-showmessage').classList.add('code-line-highlight');
+
+                          showParallelSearchMessage(foundAge, searchTerm);
+
+                          setTimeout(() => {
+                            document.getElementById('psearch-showmessage').classList.remove('code-line-highlight');
+                            document.getElementById('psearch-final-end').classList.add('code-line-highlight');
+
+                            setTimeout(() => {
+                              document.getElementById('psearch-final-end').classList.remove('code-line-highlight');
+                              showParallelSearchResults(bFound, foundAge, searchTerm);
+                            }, 600);
+                          }, 600);
+                        }, 600);
+                      }, 600);
+                    }, 600);
+                  }, 600);
+                }, 600);
+              }, 600);
+            }, 600);
+          } else {
+            setTimeout(() => {
+              document.getElementById('psearch-if-line').classList.remove('code-line-highlight');
+              pair.style.opacity = '1';
+            }, 900);
+          }
+        }, currentLineDelay + iLoop * 2000);
+      }
+    }
+
+    function showParallelSearchMessage(age, searchTerm) {
+      const existingBackdrop = document.querySelector('.message-backdrop');
+      const existingMessage = document.querySelector('.message-popup');
+      if (existingBackdrop) existingBackdrop.remove();
+      if (existingMessage) existingMessage.remove();
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'message-backdrop';
+
+      const popup = document.createElement('div');
+      popup.className = 'message-popup';
+      popup.innerHTML = `
+        <div class="text-2xl font-bold text-white mono mb-4">ShowMessage</div>
+        <div class="text-4xl font-bold text-white">${age} years old</div>
+      `;
+
+      document.body.appendChild(backdrop);
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        backdrop.remove();
+        popup.remove();
+      }, 2500);
+    }
+
+    function showParallelSearchResults(bFound, foundAge, searchTerm) {
+      const resultDiv = document.getElementById('parallel-search-result');
+      const resultMessage = document.getElementById('parallel-result-message');
+
+      resultDiv.classList.remove('hidden');
+
+      if (bFound) {
+        resultMessage.textContent = `✓ '${searchTerm}' is ${foundAge} years old`;
+        resultMessage.className = 'mono text-lg font-bold text-green-400';
+      } else {
+        resultMessage.textContent = `✗ '${searchTerm}' not found`;
+        resultMessage.className = 'mono text-lg font-bold text-red-400';
+      }
+
+      isParallelSearching = false;
+    }
+
+    function resetParallelSearch() {
+      document.getElementById('parallel-search-input').value = '';
+      document.getElementById('parallel-search-error').classList.add('hidden');
+      document.getElementById('parallel-search-button').disabled = false;
+      document.getElementById('parallel-search-button').classList.remove('opacity-50');
+      document.getElementById('reset-parallel-search').classList.add('hidden');
+      document.getElementById('parallel-search-result').classList.add('hidden');
+      document.getElementById('parallel-search-log').innerHTML = '';
+
+      document.querySelectorAll('[id^="parallel-search-pair-"]').forEach(pair => {
+        pair.style.opacity = '1';
+        pair.style.boxShadow = 'none';
+      });
+
+      const lineIds = ['psearch-var-line', 'psearch-iloop-line', 'psearch-bfound-line', 'psearch-begin-line', 
+                       'psearch-init-line', 'psearch-for-line', 'psearch-inner-begin', 'psearch-if-line', 
+                       'psearch-then-begin', 'psearch-assign1-line', 'psearch-assign2-line', 'psearch-then-end', 
+                       'psearch-inner-end', 'psearch-result-if', 'psearch-showmessage', 'psearch-final-end'];
+      
+      lineIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('code-line-highlight');
+      });
+
+      const bfoundStatus = document.getElementById('parallel-bfound-status');
+      bfoundStatus.textContent = 'False';
+      bfoundStatus.className = 'mono text-lg font-bold px-3 py-2 rounded-lg bg-slate-800 border-2 border-slate-600 text-slate-400 transition-all duration-300 text-center';
+
+      document.getElementById('parallel-search-term').textContent = "'...'";
+
+      const backdrop = document.querySelector('.message-backdrop');
+      const popup = document.querySelector('.message-popup');
+      if (backdrop) backdrop.remove();
+      if (popup) popup.remove();
+
+      isParallelSearching = false;
+    }
+
+    // ===== QUIZ 2 =====
+    function initQuiz2() {
+      const container = document.getElementById('quiz2-container');
+      const indicators = document.getElementById('quiz2-indicators');
+      
+      container.innerHTML = '';
+      indicators.innerHTML = '';
+      quiz2Answers = {};
+      currentQuestion2Index = 0;
+
+      for (let i = 0; i < quiz2Questions.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'progress-dot ' + (i === 0 ? 'active' : 'pending');
+        indicators.appendChild(dot);
+      }
+
+      renderQuestion2();
+    }
+
+    function renderQuestion2() {
+      const container = document.getElementById('quiz2-container');
+      const question = quiz2Questions[currentQuestion2Index];
+
+      container.innerHTML = '';
+
+      const levelBadge = document.createElement('div');
+      levelBadge.className = 'inline-block bg-fuchsia-500/20 border border-fuchsia-500/50 text-fuchsia-300 px-3 py-1 rounded-full text-sm font-semibold mb-4';
+      levelBadge.textContent = `Level ${question.level} - ${question.type.charAt(0).toUpperCase() + question.type.slice(1)}`;
+      container.appendChild(levelBadge);
+
+      const questionTitle = document.createElement('h3');
+      questionTitle.className = 'text-2xl font-bold text-white mb-6';
+      questionTitle.textContent = question.question;
+      container.appendChild(questionTitle);
+
+      const optionsDiv = document.createElement('div');
+      optionsDiv.className = 'space-y-3';
+
+      question.options.forEach((option, idx) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'quiz-option bg-slate-900 rounded-lg p-4 border-2 border-slate-700';
+        if (quiz2Answers[currentQuestion2Index] === idx) {
+          optionDiv.classList.add('selected');
+        }
+
+        optionDiv.innerHTML = `
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-6 h-6 rounded-full border-2 border-slate-500 flex items-center justify-center mt-1">
+              <div class="w-2 h-2 rounded-full bg-slate-500 opacity-0 transition-opacity"></div>
+            </div>
+            <div class="flex-1">
+              <p class="text-slate-200 font-medium mono text-sm">${option}</p>
+            </div>
+          </div>
+        `;
+
+        optionDiv.onclick = () => selectAnswer2(idx, optionDiv);
+        optionsDiv.appendChild(optionDiv);
+      });
+
+      container.appendChild(optionsDiv);
+
+      updateNavigationButtons2();
+      updateProgress2();
+    }
+
+    function selectAnswer2(idx, element) {
+      document.querySelectorAll('#quiz2-container .quiz-option.selected').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+
+      element.classList.add('selected');
+      quiz2Answers[currentQuestion2Index] = idx;
+    }
+
+    function nextQuestion2() {
+      if (currentQuestion2Index < quiz2Questions.length - 1) {
+        currentQuestion2Index++;
+        renderQuestion2();
+      }
+    }
+
+    function previousQuestion2() {
+      if (currentQuestion2Index > 0) {
+        currentQuestion2Index--;
+        renderQuestion2();
+      }
+    }
+
+    function updateNavigationButtons2() {
+      const prevBtn = document.getElementById('prev-question2');
+      const nextBtn = document.getElementById('next-question2');
+      const submitBtn = document.getElementById('submit-quiz2');
+
+      if (currentQuestion2Index === 0) {
+        prevBtn.classList.add('hidden');
+      } else {
+        prevBtn.classList.remove('hidden');
+      }
+
+      if (currentQuestion2Index === quiz2Questions.length - 1) {
+        nextBtn.classList.add('hidden');
+        submitBtn.classList.remove('hidden');
+      } else {
+        nextBtn.classList.remove('hidden');
+        submitBtn.classList.add('hidden');
+      }
+    }
+
+    function updateProgress2() {
+      const progress = document.getElementById('quiz2-progress');
+      progress.textContent = `Question ${currentQuestion2Index + 1} of ${quiz2Questions.length}`;
+
+      const indicators = document.querySelectorAll('#quiz2-indicators .progress-dot');
+      indicators.forEach((dot, idx) => {
+        dot.className = 'progress-dot';
+        if (idx < currentQuestion2Index) {
+          dot.classList.add('completed');
+        } else if (idx === currentQuestion2Index) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.add('pending');
+        }
+      });
+    }
+
+    function submitQuiz2() {
+      const results = document.getElementById('quiz2-results');
+      const resultsTitle = document.getElementById('results2-title');
+      const resultsMessage = document.getElementById('results2-message');
+      const scoreNumber = document.getElementById('score2-number');
+
+      let correct = 0;
+      for (let i = 0; i < quiz2Questions.length; i++) {
+        if (quiz2Answers[i] === quiz2Questions[i].correct) {
+          correct++;
+        }
+      }
+
+      scoreNumber.textContent = correct;
+
+      const percentage = Math.round((correct / quiz2Questions.length) * 100);
+
+      if (percentage === 100) {
+        resultsTitle.textContent = '🎉 Perfect Score!';
+        resultsMessage.innerHTML = 'You\'ve mastered parallel arrays! From declaration to searching, you know it all!';
+        resultsMessage.className = 'text-lg text-green-300';
+      } else if (percentage >= 80) {
+        resultsTitle.textContent = '✨ Excellent!';
+        resultsMessage.innerHTML = 'Great job! You have a solid understanding of parallel arrays. Well done!';
+        resultsMessage.className = 'text-lg text-yellow-300';
+      } else if (percentage >= 60) {
+        resultsTitle.textContent = '✓ Good Try!';
+        resultsMessage.innerHTML = 'You got some concepts right. Review and try again!';
+        resultsMessage.className = 'text-lg text-blue-300';
+      } else {
+        resultsTitle.textContent = '📚 Keep Learning!';
+        resultsMessage.innerHTML = 'Go back to the levels and review. You\'ll get it!';
+        resultsMessage.className = 'text-lg text-orange-300';
+      }
+
+      document.getElementById('quiz2-container').classList.add('hidden');
+      document.getElementById('prev-question2').classList.add('hidden');
+      document.getElementById('next-question2').classList.add('hidden');
+      document.getElementById('submit-quiz2').classList.add('hidden');
+      results.classList.remove('hidden');
+    }
+
+    function resetQuiz2() {
+      document.getElementById('quiz2-results').classList.add('hidden');
+      document.getElementById('quiz2-container').classList.remove('hidden');
+      document.getElementById('prev-question2').classList.add('hidden');
+      document.getElementById('next-question2').classList.remove('hidden');
+      document.getElementById('submit-quiz2').classList.add('hidden');
+      initQuiz2();
+    }
+
+    function createArrayBlock(index, value, color, interactive = false) {
+      const colors = {
+        cyan: { bg: 'bg-cyan-500/20', border: 'border-cyan-500', text: 'text-cyan-400', indexBg: 'bg-cyan-500' },
+        emerald: { bg: 'bg-emerald-500/20', border: 'border-emerald-500', text: 'text-emerald-400', indexBg: 'bg-emerald-500' },
+        amber: { bg: 'bg-amber-500/20', border: 'border-amber-500', text: 'text-amber-400', indexBg: 'bg-amber-500' },
+        indigo: { bg: 'bg-indigo-500/20', border: 'border-indigo-500', text: 'text-indigo-400', indexBg: 'bg-indigo-500' }
+      };
+      const c = colors[color];
+
+      const block = document.createElement('div');
+      block.className = `array-block flex items-center ${c.bg} rounded-lg border-2 ${c.border} ${interactive ? 'cursor-pointer' : ''}`;
+      
+      block.innerHTML = `
+        <div class="${c.indexBg} text-slate-900 w-6 h-6 rounded flex items-center justify-center font-bold text-xs mono flex-shrink-0">
+          ${index}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-slate-400 text-xs uppercase tracking-wide mb-0.5 leading-tight">Index [${index}]</div>
+          <div class="mono text-sm ${c.text} font-bold value-display">${value}</div>
+        </div>
+        <div class="text-slate-500 mono text-xs flex-shrink-0">
+          ${config.array_name || defaultConfig.array_name}[${index}]
+        </div>
+      `;
+
+      return block;
+    }
+
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cdc9543405f93cf',t:'MTc3MTA3MjI5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

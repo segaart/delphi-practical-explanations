@@ -2,154 +2,268 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PBHS • Delphi Practical Animations</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PBHS IT Animations</title>
 
   <style>
     :root{
-      --pbhs-red:#b11226;
-      --pbhs-green:#0f6a37;
-      --pbhs-white:#ffffff;
-      --bg:#0b0f14;
-      --panel:#111827;
-      --text:#e5e7eb;
-      --muted:#9ca3af;
-      --border:rgba(255,255,255,.12);
+      --pbhs-red:   #b10f2e;
+      --pbhs-green: #0a6b3b;
+      --pbhs-white: #ffffff;
+      --ink:        #0f172a;
+      --card:       rgba(255,255,255,0.08);
+      --card2:      rgba(255,255,255,0.12);
+      --border:     rgba(255,255,255,0.18);
     }
 
-    *{box-sizing:border-box}
+    *{ box-sizing:border-box; }
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(177,18,38,.25), transparent 60%),
-                  radial-gradient(1000px 600px at 80% 0%, rgba(15,106,55,.25), transparent 60%),
-                  var(--bg);
-      color:var(--text);
+      color: var(--pbhs-white);
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(177,15,46,0.35), transparent 60%),
+        radial-gradient(1000px 700px at 80% 20%, rgba(10,107,59,0.35), transparent 60%),
+        linear-gradient(180deg, #061018, #020617);
+      min-height:100vh;
     }
 
-    .wrap{max-width:1100px; margin:0 auto; padding:28px 18px 60px;}
-    header{
-      display:flex; gap:16px; align-items:center;
-      padding:18px;
-      background: linear-gradient(90deg, rgba(177,18,38,.18), rgba(15,106,55,.18));
-      border:1px solid var(--border);
-      border-radius:18px;
+    .wrap{
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 28px 18px 44px;
     }
-    .crest{
-      width:70px; height:70px; border-radius:12px;
-      border:1px solid var(--border);
-      background:#fff;
-      object-fit:contain;
-    }
-    .title h1{margin:0; font-size:1.6rem; letter-spacing:.2px;}
-    .title p{margin:.35rem 0 0; color:var(--muted);}
 
-    .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
-    .badge{
-      font-size:.85rem;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,.04);
-      color:var(--text);
+    /* Header */
+    .header{
+      display:flex;
+      align-items:center;
+      gap: 18px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      backdrop-filter: blur(8px);
     }
-    .badge.red{border-color:rgba(177,18,38,.45)}
-    .badge.green{border-color:rgba(15,106,55,.45)}
 
+    .logo{
+      width: 74px;
+      height: 74px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .logo img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    .titleblock{ flex:1; min-width: 0; }
+    .kicker{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      opacity: .95;
+    }
+    .pill{
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.20);
+      background: rgba(255,255,255,0.08);
+    }
+    .pill.red{ border-color: rgba(177,15,46,0.55); }
+    .pill.green{ border-color: rgba(10,107,59,0.55); }
+
+    h1{
+      margin: 10px 0 0;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.15;
+    }
+    .subtitle{
+      margin: 8px 0 0;
+      color: rgba(255,255,255,0.82);
+      max-width: 70ch;
+    }
+
+    /* Button grid */
     .grid{
-      margin-top:22px;
+      margin-top: 22px;
       display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap:14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 720px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
-    .card{
-      background: rgba(17,24,39,.85);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:16px;
-      transition: transform .15s ease, border-color .15s ease;
-    }
-    .card:hover{transform:translateY(-2px); border-color:rgba(255,255,255,.22)}
-    .card h2{margin:0 0 8px; font-size:1.05rem;}
-    .card p{margin:0 0 14px; color:var(--muted); line-height:1.35;}
-    .btn{
-      display:inline-block;
+    .bigbtn{
       text-decoration:none;
-      font-weight:700;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color:var(--text);
+      display:block;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--card), rgba(0,0,0,0.10));
+      padding: 18px 18px 16px;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      position: relative;
+      overflow:hidden;
     }
-    .btn.red{background: rgba(177,18,38,.18); border-color:rgba(177,18,38,.45)}
-    .btn.green{background: rgba(15,106,55,.18); border-color:rgba(15,106,55,.45)}
-    .btn:hover{filter:brightness(1.08)}
+    .bigbtn:focus{ outline: 3px solid rgba(255,255,255,0.25); outline-offset: 3px; }
+    .bigbtn:hover{
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, var(--card2), rgba(0,0,0,0.12));
+      border-color: rgba(255,255,255,0.28);
+    }
 
-    footer{
-      margin-top:26px;
-      color:var(--muted);
-      font-size:.9rem;
-      text-align:center;
+    /* Accent stripe (uses PBHS colours, not “words”) */
+    .bigbtn::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg,
+          rgba(177,15,46,0.75),
+          rgba(255,255,255,0.25),
+          rgba(10,107,59,0.75)
+        );
+      height: 6px;
     }
-    .note{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px dashed rgba(255,255,255,.18);
-      color:var(--muted);
-      background:rgba(255,255,255,.03);
+
+    .btnrow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      margin-top: 10px;
     }
-    .small{font-size:.85rem}
-    code{color:#fff}
+
+    .btntext{
+      min-width: 0;
+    }
+    .btnlabel{
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 8px;
+    }
+    .btncaption{
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0;
+    }
+    .btndesc{
+      margin: 10px 0 0;
+      color: rgba(255,255,255,0.80);
+      line-height: 1.4;
+    }
+
+    .arrow{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex: 0 0 auto;
+      font-size: 20px;
+    }
+
+    /* Footer */
+    .footer{
+      margin-top: 22px;
+      padding: 14px 6px 0;
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer a{ color: rgba(255,255,255,0.85); }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <header>
-      <img class="crest" src="assets/PBHSCrestColour.jpg" alt="PBHS Crest">
-      <div class="title">
-        <h1>PBHS • Delphi Practical Animations</h1>
-        <p>Interactive animations for exam prep (Grade 10–12)</p>
+    <header class="header">
+      <!-- IMPORTANT: put your crest file in /assets/ and update the filename below -->
+      <div class="logo">
+        <img src="assets/PBHSCrestColour.jpg" alt="PBHS Crest">
+      </div>
 
-        <div class="badge-row">
-          <div class="badge red">Red</div>
-          <div class="badge">White</div>
-          <div class="badge green">Green</div>
+      <div class="titleblock">
+        <div class="kicker">
+          <span class="pill red">Pretoria Boys High</span>
+          <span class="pill green">IT Animations</span>
         </div>
+
+        <h1>Delphi Practical Animations</h1>
+        <p class="subtitle">
+          Choose a topic below. Each section is a standalone webpage (ideal for GitHub Pages).
+        </p>
       </div>
     </header>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Arrays</h2>
-        <p>1D arrays, parallel arrays, search/loops and visual tracing.</p>
-        <a class="btn red" href="arrays/index.html">Open Arrays</a>
-      </div>
+    <main>
+      <div id="menu" class="grid"></div>
+    </main>
 
-      <div class="card">
-        <h2>Strings</h2>
-        <p>Length, Pos, Copy, Delete, string manipulation patterns.</p>
-        <a class="btn green" href="strings/index.html">Open Strings</a>
-      </div>
-
-      <div class="card">
-        <h2>Teacher Only</h2>
-        <p>Tracking / analytics page (restricted link — don’t share with learners).</p>
-        <a class="btn" href="teacher/index.html">Open Teacher Section</a>
-      </div>
+    <div class="footer">
+      <div>© PBHS • IT Department</div>
+      <div><span style="opacity:.7">Tip:</span> Add more buttons by editing the <strong>items</strong> list in the code.</div>
     </div>
-
-    <div class="note">
-      <div><strong>Why this page will display:</strong> it uses <em>no</em> Canva SDK and no external libraries.</div>
-      <div class="small">If you later add animations that use JavaScript files, I’ll show you the best way to host them so Chrome always loads everything.</div>
-    </div>
-
-    <footer>
-      Pretoria Boys High School • IT Department
-    </footer>
   </div>
+
+  <script>
+    // ✅ EDIT ONLY THIS LIST to change button order, caption, link, etc.
+    const items = [
+      {
+        label: "Topic",
+        caption: "1D Arrays",
+        description: "Declaration, assignment, loops, searching, and common exam patterns.",
+        href: "arrays1.html"
+      },
+      {
+        label: "Topic",
+        caption: "2D Arrays",
+        description: "Grids, row/column logic, manipulation, and challenge-style questions.",
+        href: "arrays2d.html"
+      }
+    ];
+
+    const menu = document.getElementById("menu");
+
+    items.forEach(item => {
+      const a = document.createElement("a");
+      a.className = "bigbtn";
+      a.href = item.href;
+
+      a.innerHTML = `
+        <div class="btnrow">
+          <div class="btntext">
+            <div class="btnlabel">${item.label}</div>
+            <p class="btncaption">${item.caption}</p>
+            <p class="btndesc">${item.description}</p>
+          </div>
+          <div class="arrow">➜</div>
+        </div>
+      `;
+
+      menu.appendChild(a);
+    });
+  </script>
 </body>
 </html>
