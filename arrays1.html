@@ -271,7 +271,7 @@
   <!-- Audio narration (upload array1animate.mp3 alongside this HTML, or adjust the path) -->
   <audio id="array1Audio" src="array1animate.mp3" preload="auto"></audio>
  
- <audio id="level-1-btn" src="audio/array1animate.mp3"></audio>
+ <audio id="level-1-btn" src="array1animate.mp3"></audio>
  
   <div id="app-wrapper" class="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-auto">
    <div class="min-h-full p-6 md:p-8"><!-- Header -->
@@ -889,14 +889,14 @@ function clearAllTimeouts() {
   window.__timeoutIds = [];
 }
 
-//function playArray1Audio() {
- // const audio = document.getElementById('array1Audio');
-  //if (!audio) return;
- // audio.pause();
-  //audio.currentTime = 0;
+function playArray1Audio() {
+  const audio = document.getElementById('array1Audio');
+  if (!audio) return;
+  audio.pause();
+  audio.currentTime = 0;
   // Some browsers require a user gesture (the button click counts)
- // audio.play().catch(() => {});
-//}
+  audio.play().catch(() => {});
+}
 
 // Sound starts immediately. Animation starts after 6 seconds.
 function startLevel1WithAudio() {
@@ -907,7 +907,7 @@ function startLevel1WithAudio() {
   pauseLesson();
 
   // Start audio immediately
-  playArray1Audio();
+ // playArray1Audio();
 
   // Start the first animation after 6 seconds
   __nativeSetTimeout(() => {
