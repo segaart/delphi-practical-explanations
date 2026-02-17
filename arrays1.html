@@ -271,7 +271,7 @@
   <!-- Audio narration (upload array1animate.mp3 alongside this HTML, or adjust the path) -->
   <audio id="array1Audio" src="array1animate.mp3" preload="auto"></audio>
  
- <audio id="level-1-btn" src="array1animate.mp3"></audio>
+ 
  
   <div id="app-wrapper" class="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-auto">
    <div class="min-h-full p-6 md:p-8"><!-- Header -->
@@ -900,18 +900,23 @@ function playArray1Audio() {
 
 // Sound starts immediately. Animation starts after 6 seconds.
 function startLevel1WithAudio() {
+
   // Make sure we are on Level 1
   if (typeof goToLevel === 'function') goToLevel(1);
 
-  // Stop any running/scheduled animations first
-  pauseLesson();
+  pauseLesson(); // stop any running timeouts/audio
 
-  // Start audio immediately
- // playArray1Audio();
+  const audio = document.getElementById('array1Audio');
+  if (!audio) return;
 
-  // Start the first animation after 6 seconds
+  // 🔊 Start audio immediately
+  audio.pause();
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+
+  // 🎞 Start animation after 6 seconds
   __nativeSetTimeout(() => {
-    if (typeof playLevel1 === 'function') playLevel1();
+      if (typeof playLevel1 === 'function') playLevel1();
   }, 6000);
 }
 
@@ -2511,12 +2516,7 @@ function replayLesson() {
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cdc9543405f93cf',t:'MTc3MTA3MjI5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
  
- <script>
-function playLevel1() {
-    document.getElementById("level-1-btn").currentTime = 0;
-    document.getElementById("level-1-btn").play();
-}
-</script>
+
  
  
  
