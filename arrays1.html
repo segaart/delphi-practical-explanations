@@ -269,7 +269,7 @@
  </head>
  <body class="h-full">
  
-<audio id="array1Audio" src="audio/array1animate.mp3"></audio>
+<audio id="array1Audio" src="array1animate.mp3"></audio>
  
   <div id="app-wrapper" class="h-full w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-auto">
    <div class="min-h-full p-6 md:p-8"><!-- Header -->
@@ -308,7 +308,7 @@
          </div>
         </div>
        </div><!-- Play Button -->
-       <div class="text-center mt-6"><button id="play-level-1" onclick="playArray1Audio(); playLevel1()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30"> ▶ Play Animation </button> <button id="reset-level-1" onclick="resetLevel1()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       <div class="text-center mt-6"><button id="play-level-1" onclick="playAnimation()" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/30"> ▶ Play Animation </button> <button id="reset-level-1" onclick="resetLevel1()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
        </div>
       </div>
      </section><!-- Level 2: Assignment -->
@@ -2434,24 +2434,27 @@
     initApp();
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cdc9543405f93cf',t:'MTc3MTA3MjI5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
- 
- <script>
-function playLevel1() {
-    document.getElementById("level-1-btn").currentTime = 0;
-    document.getElementById("level-1-btn").play();
-}
-</script>
-
 <script>
 function playAnimation() {
+  // 1) Play narration/audio (non-blocking)
+  const audio = document.getElementById('array1Audio');
+  if (audio) {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch (e) {
+      // Ignore audio errors (e.g. user gesture policies)
+    }
+  }
 
-    // Restart audio if clicked again
-    const audio = document.getElementById("array1Audio");
-    audio.currentTime = 0;
-    audio.play();
-
-    // 🔽 Keep your existing animation code here
-    // (If you already had animation code, move it inside this function)
+  // 2) Run the original Level 1 animation
+  if (typeof playLevel1 === 'function') {
+    playLevel1();
+  } else {
+    console.warn('playLevel1() was not found - animation did not start.');
+  }
 }
 </script>
  
@@ -2461,5 +2464,4 @@ function playAnimation() {
  
  
  </body>
-
 </html>
