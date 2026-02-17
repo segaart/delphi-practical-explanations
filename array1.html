@@ -270,6 +270,8 @@
  <body class="h-full">
   <!-- Audio narration (upload array1animate.mp3 alongside this HTML, or adjust the path) -->
   <audio id="array1Audio" src="array1animate.mp3" preload="auto"></audio>
+  <!-- Level 2 narration (starts when Level 2 Play Animation is clicked) -->
+  <audio id="array1AudioLevel2" src="array1Level2.mp3" preload="auto"></audio>
  
  
  
@@ -347,7 +349,7 @@
          </div>
         </div>
        </div><!-- Play Button -->
-       <div class="text-center mt-6"><button id="play-level-2" onclick="playLevel2()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-emerald-500/30"> ▶ Play Animation </button> <button id="reset-level-2" onclick="resetLevel2()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
+       <div class="text-center mt-6"><button id="play-level-2" onclick="startLevel2WithAudio()" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 font-bold px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-emerald-500/30"> ▶ Play Animation </button> <button id="reset-level-2" onclick="resetLevel2()" class="ml-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-all hidden"> ↺ Reset </button>
        </div>
       </div>
      </section><!-- Level 3: Accessing -->
@@ -955,6 +957,30 @@ function replayLesson() {
       accent_color: '#10b981',
       background_color: '#0f172a'
     };
+
+    // LEVEL 2: play its own audio immediately, then start the Level 2 animation after 6 seconds.
+    // (Does not affect Level 1 behaviour.)
+    function startLevel2WithAudio() {
+      const audio2 = document.getElementById('array1AudioLevel2');
+      if (audio2) {
+        audio2.pause();
+        audio2.currentTime = 0;
+        // Start sound immediately on click
+        audio2.play().catch(() => {
+          // Autoplay may be blocked if the click is not considered a user gesture in some contexts
+        });
+      }
+
+      // Start the existing Level 2 animation 6 seconds after click
+      setTimeout(() => {
+        if (typeof playLevel2 === 'function') {
+          playLevel2();
+        } else {
+          console.error('playLevel2() was not found. Ensure the Level 2 animation function exists.');
+        }
+      }, 6000);
+    }
+
 
     let config = { ...defaultConfig };
     const arrayValues = ['Thabo', 'Michael', 'Jane', 'Gerhard', 'Sarah'];
